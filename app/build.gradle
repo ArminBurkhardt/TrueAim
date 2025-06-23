@@ -19,6 +19,8 @@ dependencies {
     implementation "org.lwjgl:lwjgl:3.3.6"
     implementation "org.lwjgl:lwjgl-glfw:3.3.6"
     implementation "org.lwjgl:lwjgl-opengl:3.3.6"
+    implementation 'org.joml:joml:1.10.3'
+    implementation "org.lwjgl:lwjgl-glu:3.3.6"
 
     runtimeOnly "org.lwjgl:lwjgl:3.3.6:natives-windows"
     runtimeOnly "org.lwjgl:lwjgl-glfw:3.3.6:natives-windows"
@@ -43,7 +45,7 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = 'org.example.App'
+    mainClass = 'org.trueaim.AimTrainer'
 }
 
 tasks.named('test') {
