@@ -1,6 +1,19 @@
 package org.trueaim.shootable;
 
+/**
+ * Interface für schießbare Waffen.
+ * Definiert Grundfunktionen jeder Waffe.
+ * kinda useless, vielleicht entfernen
+ */
+
 public interface Shootable {
-    public void on_left_press();
-    public void on_right_press();
+    /**
+     * Wird bei Linksklick (Primärfeuer) ausgelöst.
+     */
+    void onLeftPress();
+
+    /**
+     * Wird bei Rechtsklick (Zielfernrohr) ausgelöst.
+     */
+    void onRightPress();
 }
