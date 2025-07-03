@@ -33,26 +33,31 @@ public class GameEngine {
         this.window = window;
         this.inputManager = inputManager;
         this.camera = camera;
-        this.weapon = new AK47(camera);  // Waffe erstellen
+        this.renderer = new Renderer(window.getWidth(), window.getHeight()); // 3D-Renderer
+        this.weapon = new AK47(camera, renderer);  // Waffe erstellen
         this.targetManager = new TargetManager();  // Ziele initialisieren
         this.raycaster = new Raycasting(targetManager, weapon.getStats()); // Trefferprüfung
-        this.renderer = new Renderer(window.getWidth(), window.getHeight()); // 3D-Renderer
         this.overlayRenderer = new OverlayRenderer(weapon.getStats()); // UI-Renderer
 
         // Eingabecallbacks registrieren
         inputManager.addLeftClickCallback(this::handleShoot);  // Linksklick: Schießen
         inputManager.addRightClickCallback(weapon::onRightPress); // Rechtsklick: Zielfernrohr
+        inputManager.addRkeyCallback(weapon::Reload);      //R-Taste: Nachladen
     }
 
     /**
-     * Verarbeitet Schussereignisse.
-     * 1. Aktiviert Waffeneffekte
-     * 2. Startet Treffererkennung
+     * Verarbeitet Schussereignisse, wenn Munition im Magazin
+     * 1. Startet Trefferüberprüfung
+     * 2. Aktiviert Waffeneffekte
+     *
+     * Ist besser das Raycasting hier statt in der Waffenklasse zu starten, da man die
+     * Raycasting Klasse mit dem momentanen Klassenaufbau dort nicht initialisieren kann
      */
-    //TODO:
     private void handleShoot() {
-        weapon.onLeftPress();  // Waffenlogik aktivieren
-        raycaster.checkHit(camera.getPosition(), camera.getFront()); // Trefferprüfung
+        if (weapon.hasAmmo()){
+            raycaster.checkHit(camera.getPosition(), camera.getFront()); // Trefferüberprüfung
+            weapon.onLeftPress();  // Waffenlogik aktivieren
+        }
     }
 
     /**
@@ -112,6 +117,7 @@ public class GameEngine {
                 stats.getHeadshots(), stats.getHits(), stats.getHeadshotRate());
         System.out.printf("Schüsse: %d | Treffer: %d | Fehlschüsse: %d\n",
                 stats.getShotsFired(), stats.getHits(), stats.getMisses());
+        System.out.printf("Reloads: %d\n", stats.getReloads());
         System.out.printf("Schüsse/Minute: %.1f\n", stats.getShotsPerMinute());
         System.out.println("=========================");
     }

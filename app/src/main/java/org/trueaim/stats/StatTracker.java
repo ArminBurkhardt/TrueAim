@@ -16,6 +16,7 @@ public class StatTracker {
     private int hits = 0;            // Erfolgreiche Treffer
     private int misses = 0;          // Fehlschüsse
     private int headshots = 0;       // Kopftreffer
+    private int reloads = 0;         // Reloads, ka ob interessant vielleicht entfernen//TODO
     private final List<Long> shotTimes = new ArrayList<>(); // Zeitpunkte der Schüsse
     private long sessionStartTime = System.currentTimeMillis(); // Spielstartzeit
 
@@ -31,6 +32,7 @@ public class StatTracker {
     public void registerMiss() {
         misses++;
     }
+    public void registerReload(){reloads++;}
 
     // Statistikkalkulation
     public float getAccuracy() {
@@ -49,4 +51,5 @@ public class StatTracker {
     public int getHits() { return hits; }
     public int getMisses() { return misses; }
     public int getHeadshots() { return headshots; }
+    public int getReloads() { return reloads;}
 }

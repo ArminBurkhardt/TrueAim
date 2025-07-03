@@ -1,6 +1,7 @@
 package org.trueaim.entities.weapons;
 import org.joml.Vector2f;
 import org.trueaim.Camera;
+import org.trueaim.rendering.Renderer;
 
 /**
  * Spezifische Implementierung der AK-47-Waffe.
@@ -10,21 +11,44 @@ public class AK47 extends GenericWeapon {
     private int consecutiveShots = 0; // Anzahl aufeinanderfolgender Schüsse
     private long lastShotTime = 0;    // Zeitpunkt des letzten Schusses
     private final Camera camera;      // Referenz zur Spielkamera
+    //TODO
+    private final Renderer renderer;  //Referenz zu Renderer (für FOV Change)
+    protected int ammo = 30;                // Magazingröße
 
-    public AK47(Camera camera) {
+    public AK47(Camera camera, Renderer renderer) {
         this.camera = camera;
+        this.renderer = renderer;
+    }
+    
+    /**
+     * Überprüft ob Munition in der Waffe ist
+     */
+    @Override
+    public boolean hasAmmo(){
+        return ammo > 0;
     }
 
+    /**
+     * Lädt die Waffe nach.
+     * Setzt die Munition auf das Maximum zurück.
+     */
+    public void Reload(){
+        ammo = 30; // Setzt die Munition auf das Maximum zurück
+        consecutiveShots = 0; // Schusskette zurücksetzen
+        lastShotTime = 0; // Letzten Schusszeitpunkt zurücksetzen
+        stats.registerReload(); // Statistik aktualisieren
+        System.out.println("Tut Tut, Wir haben nachgeladen, Tut Tut");
+        System.out.println("das ist obviously ne Testnachricht, nicht vergessen zu entfernen xd");
+    }
+
+    //Schusseffekte (Raycasting für Schuss / Ammo überprüfung wird in GameEngine gestartet)
     @Override
     public void onLeftPress() {
-        // Schuss abfeuern wenn Munition vorhanden
-        if (ammo > 0) {
-            applyRecoil();        // Rückstoß anwenden
-            ammo--;              // Munition verringern
-            stats.incrementShotsFired(); // Statistik aktualisieren
-            consecutiveShots++;   // Schusszähler erhöhen
-            lastShotTime = System.currentTimeMillis(); // Zeit speichern
-        }
+        applyRecoil();        // Rückstoß anwenden
+        ammo--;              // Munition verringern
+        stats.incrementShotsFired(); // Statistik aktualisieren
+        consecutiveShots++;   // Schusszähler erhöhen
+        lastShotTime = System.currentTimeMillis(); // Zeit speichern
     }
 
     /**
@@ -44,5 +68,6 @@ public class AK47 extends GenericWeapon {
     public void onRightPress() {
         super.onRightPress();
         consecutiveShots = 0; // Zielen unterbricht Schusskette
+        renderer.setFOV(40);
     }
 }

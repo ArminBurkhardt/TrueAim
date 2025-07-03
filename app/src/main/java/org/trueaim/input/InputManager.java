@@ -25,6 +25,7 @@ public class InputManager {
     private boolean firstMouse = true;    // Erste Bewegung?
     private final List<Runnable> leftClickCallbacks = new ArrayList<>();  // Linksklick-Handler
     private final List<Runnable> rightClickCallbacks = new ArrayList<>(); // Rechtsklick-Handler
+    private final List<Runnable> RkeyCallbacks = new ArrayList<>(); // Rechtsklick-Handler
 
     public InputManager(Window window, Camera camera) {
         this.windowHandle = window.getHandle();
@@ -46,6 +47,10 @@ public class InputManager {
             // ESCAPE zum Freigeben/Sperren der Maus
             if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
                 toggleMouseLock();
+
+            if (key == GLFW_KEY_R && action == GLFW_PRESS) {
+                RkeyCallbacks.forEach(Runnable::run);
+            }
         });
 
         // Mauspositions-Callback
@@ -116,5 +121,8 @@ public class InputManager {
     }
     public void addRightClickCallback(Runnable callback) {
         rightClickCallbacks.add(callback);
+    }
+    public void addRkeyCallback(Runnable callback) {
+        RkeyCallbacks.add(callback);
     }
 }
