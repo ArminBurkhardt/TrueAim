@@ -26,9 +26,11 @@ public class InputManager {
     private final List<Runnable> leftClickCallbacks = new ArrayList<>();  // Linksklick-Handler
     private final List<Runnable> rightClickCallbacks = new ArrayList<>(); // Rechtsklick-Handler
     private final List<Runnable> RkeyCallbacks = new ArrayList<>(); // Rechtsklick-Handler
+    private final Window window;
 
     public InputManager(Window window, Camera camera) {
         this.windowHandle = window.getHandle();
+        this.window = window;
         this.camera = camera;
         initCallbacks();  // GLFW-Callbacks registrieren
         setMouseLock(true);  // Maus initial sperren
@@ -45,8 +47,10 @@ public class InputManager {
                 keyStates[key] = action != GLFW.GLFW_RELEASE;
 
             // ESCAPE zum Freigeben/Sperren der Maus
-            if (key == GLFW.GLFW_KEY_ESCAPE && action == GLFW.GLFW_PRESS)
+            if (key == GLFW.GLFW_KEY_ESCAPE && action == GLFW.GLFW_PRESS) {
                 toggleMouseLock();
+                this.window.toggleFullscreen();
+            }
 
             if (key == GLFW.GLFW_KEY_R && action == GLFW.GLFW_PRESS) {
                 RkeyCallbacks.forEach(Runnable::run);
