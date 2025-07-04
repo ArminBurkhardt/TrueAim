@@ -1,9 +1,9 @@
 package org.trueaim.input;
+import org.lwjgl.glfw.GLFW;
 import org.trueaim.Camera;
 import org.trueaim.Window;
 import java.util.ArrayList;
 import java.util.List;
-import static org.lwjgl.glfw.GLFW.*;
 
 /**
  * Verwaltet alle Benutzereingaben.
@@ -17,9 +17,9 @@ import static org.lwjgl.glfw.GLFW.*;
 public class InputManager {
     private final long windowHandle;  // Fensterreferenz
     private final Camera camera;      // Steuerbare Kamera
-    private final boolean[] keyStates = new boolean[GLFW_KEY_LAST + 1]; // Tastenstatus
+    private final boolean[] keyStates = new boolean[GLFW.GLFW_KEY_LAST + 1]; // Tastenstatus
     private boolean mouseLocked = true;  // Mauszeiger eingeschlossen?
-    private float sensitivity = 0.1f;    // Mausempfindlichkeit
+    private float sensitivity = 0.1f;    // Mausempfindlichkeit //TODO maybe option zum anpassen
     private float movementSpeed = 5.0f;  // Bewegungsgeschwindigkeit
     private double lastMouseX, lastMouseY; // Letzte Mausposition
     private boolean firstMouse = true;    // Erste Bewegung?
@@ -39,22 +39,22 @@ public class InputManager {
      */
     private void initCallbacks() {
         // Tastatur-Callback
-        glfwSetKeyCallback(windowHandle, (window, key, scancode, action, mods) -> {
+        GLFW.glfwSetKeyCallback(windowHandle, (window, key, scancode, action, mods) -> {
             // Tastenstatus speichern
             if (key >= 0 && key < keyStates.length)
-                keyStates[key] = action != GLFW_RELEASE;
+                keyStates[key] = action != GLFW.GLFW_RELEASE;
 
             // ESCAPE zum Freigeben/Sperren der Maus
-            if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+            if (key == GLFW.GLFW_KEY_ESCAPE && action == GLFW.GLFW_PRESS)
                 toggleMouseLock();
 
-            if (key == GLFW_KEY_R && action == GLFW_PRESS) {
+            if (key == GLFW.GLFW_KEY_R && action == GLFW.GLFW_PRESS) {
                 RkeyCallbacks.forEach(Runnable::run);
             }
         });
 
         // Mauspositions-Callback
-        glfwSetCursorPosCallback(windowHandle, (window, xpos, ypos) -> {
+        GLFW.glfwSetCursorPosCallback(windowHandle, (window, xpos, ypos) -> {
             // Initialposition setzen
             if (firstMouse) {
                 lastMouseX = xpos;
@@ -75,13 +75,13 @@ public class InputManager {
         });
 
         // Mausklick-Callback
-        glfwSetMouseButtonCallback(windowHandle, (window, button, action, mods) -> {
+        GLFW.glfwSetMouseButtonCallback(windowHandle, (window, button, action, mods) -> {
             // Linksklick
-            if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+            if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT && action == GLFW.GLFW_PRESS) {
                 leftClickCallbacks.forEach(Runnable::run);
             }
             // Rechtsklick
-            if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+            if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT && action == GLFW.GLFW_PRESS) {
                 rightClickCallbacks.forEach(Runnable::run);
             }
         });
@@ -95,10 +95,10 @@ public class InputManager {
         float velocity = movementSpeed * deltaTime; // Distanz pro Frame
 
         // Kamerabewegung basierend auf Tastenstatus
-        if (isKeyPressed(GLFW_KEY_W)) camera.moveForward(velocity);
-        if (isKeyPressed(GLFW_KEY_S)) camera.moveBackward(velocity);
-        if (isKeyPressed(GLFW_KEY_A)) camera.moveLeft(velocity);
-        if (isKeyPressed(GLFW_KEY_D)) camera.moveRight(velocity);
+        if (isKeyPressed(GLFW.GLFW_KEY_W)) camera.moveForward(velocity);
+        if (isKeyPressed(GLFW.GLFW_KEY_S)) camera.moveBackward(velocity);
+        if (isKeyPressed(GLFW.GLFW_KEY_A)) camera.moveLeft(velocity);
+        if (isKeyPressed(GLFW.GLFW_KEY_D)) camera.moveRight(velocity);
     }
 
     // Hilfsmethoden
@@ -110,8 +110,8 @@ public class InputManager {
         setMouseLock(mouseLocked);
     }
     public void setMouseLock(boolean locked) {
-        glfwSetInputMode(windowHandle, GLFW_CURSOR,
-                locked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+        GLFW.glfwSetInputMode(windowHandle, GLFW.GLFW_CURSOR,
+                locked ? GLFW.GLFW_CURSOR_DISABLED : GLFW.GLFW_CURSOR_NORMAL);
         if (locked) firstMouse = true; // Position zurücksetzen
     }
 

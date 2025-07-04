@@ -26,8 +26,9 @@ public class TargetManager {
     private void spawnInitialTargets() {
         // Statische Ziele
         targets.add(new Target(new Vector3f(0, 0, -5)));
-        targets.add(new Target(new Vector3f(2.5f, 0.5f, -6)));
-        targets.add(new Target(new Vector3f(-2, -0.5f, -7)));
+        targets.add(new Target(new Vector3f(2.5f, 0, -6)));
+        targets.add(new Target(new Vector3f(-2, 0, -7)));
+        targets.add(new Target(new Vector3f(-1.5f, 0, -6)));
 
         // Bewegliche Ziele
         targets.add(new MovingTarget(
@@ -35,8 +36,6 @@ public class TargetManager {
                 new Vector3f(0.5f, 0, 0)  // Bewegungsrichtung
         ));
 
-        // Dummy mit Kopf
-        targets.add(new DummyTarget(new Vector3f(-1.5f, 0, -6)));
     }
 
     // Zugriffsmethoden
@@ -56,7 +55,6 @@ public class TargetManager {
     public void resetAll() {
         for (Target target : targets) target.reset(); // Trefferstatus zurücksetzen
 
-        //TODO not clip in floor (change y value, experiment)(maybe also eppt current way xd)
 
         // Neue zufällige Positionen
         for (Target target : targets) {
@@ -76,15 +74,10 @@ public class TargetManager {
         public void update(float deltaTime) {
             super.update(deltaTime);
             // Richtungswechsel bei Grenzerreichen
+            //TODO auch abfrage für andere Richtungen falls man Movement anpassen will
             if (getPosition().x > 3 || getPosition().x < -3) {
                 setVelocity(getVelocity().mul(-1, new Vector3f()));
             }
-        }
-    }
-
-    private static class DummyTarget extends Target {
-        public DummyTarget(Vector3f position) {
-            super(position);
         }
     }
 }

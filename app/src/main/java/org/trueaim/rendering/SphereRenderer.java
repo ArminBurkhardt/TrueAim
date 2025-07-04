@@ -6,7 +6,7 @@ import static org.lwjgl.opengl.GL11.*;
  * vielleicht Löschen wenn richtige Targets implementiert werden
  */
 
-//TODO maybe löschen wenn  TArets verbessert werden, muss aber nicht sein
+//TODO maybe löschen wenn  Targets verbessert werden, muss aber nicht sein
 public class SphereRenderer {
     private int displayListId;  // OpenGL-Display-List-ID
 

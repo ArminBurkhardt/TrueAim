@@ -19,7 +19,7 @@ public class Camera {
     private final Vector3f front = new Vector3f(0, 0, -1);  // Blickrichtung
     private final Vector3f up = new Vector3f(0, 1, 0);      // Hochvektor
     private final Vector3f right = new Vector3f(1, 0, 0);   // Rechtsvektor
-    // View-Matrix (berechnet bei Bedarf)
+    // View-Matrix
     private final Matrix4f viewMatrix = new Matrix4f();
 
     // Bewegungsmethoden (relativ zur aktuellen Ausrichtung)
