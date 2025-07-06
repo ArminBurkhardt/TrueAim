@@ -1,6 +1,11 @@
 package org.trueaim.rendering;
 
+import lombok.Getter;
+import org.trueaim.Window;
+import org.trueaim.rendering.GUI.IngameHUD;
 import org.trueaim.stats.StatTracker;
+
+import javax.swing.*;
 
 /**
  * Rendert UI-Elemente über der 3D-Szene.
@@ -13,11 +18,13 @@ public class OverlayRenderer {
     private final StatTracker stats;
     private final CrosshairRenderer crosshairRenderer;
     private final HeatmapRenderer heatmapRenderer;
+    private final IngameHUD ingameHUD;
 
-    public OverlayRenderer(StatTracker stats) {
+    public OverlayRenderer(StatTracker stats, Window window) {
         this.stats = stats;
         this.crosshairRenderer = new CrosshairRenderer();
         this.heatmapRenderer = new HeatmapRenderer();
+        this.ingameHUD = new IngameHUD(window);
     }
 
     /**
@@ -25,9 +32,18 @@ public class OverlayRenderer {
      */
     //TODO heatmap und stats vml nicht hier, aber ammo etc (vml Lasse AmmoRenderer)
 
-    public void render() {
+    public void render(Window window) {
         crosshairRenderer.render();  // Fadenkreuz
         heatmapRenderer.render();    // Heatmap (Platzhalter)
+        ingameHUD.render(window);
         // Statistik wird nur am Ende angezeigt
+    }
+
+    public IngameHUD getIngameHUD() {
+        return ingameHUD;
+    }
+
+    public void cleanup() {
+        ingameHUD.cleanup();
     }
 }

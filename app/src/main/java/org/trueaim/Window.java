@@ -26,6 +26,7 @@ public class Window {
     private float deltaTime;          // Zeit seit letztem Frame (in Sekunden)
     private static long[] monitors = null;
     private static boolean isfullscreen = false;
+    public boolean antialiasing = false; // Antialiasing-Flag
 
     public Window(int width, int height, String title) {
         this.width = width;
@@ -126,5 +127,11 @@ public class Window {
     public void cleanup() {
         glfwDestroyWindow(windowHandle);
         glfwTerminate();
+    }
+
+    public void restoreState() {
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_STENCIL_TEST);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
 }

@@ -2,6 +2,8 @@ package org.trueaim.input;
 import org.lwjgl.glfw.GLFW;
 import org.trueaim.Camera;
 import org.trueaim.Window;
+import org.trueaim.rendering.GUI.StatHUD;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +29,8 @@ public class InputManager {
     private final List<Runnable> rightClickCallbacks = new ArrayList<>(); // Rechtsklick-Handler
     private final List<Runnable> RkeyCallbacks = new ArrayList<>(); // Rechtsklick-Handler
     private final Window window;
+    private boolean showStatMenu = false; // Flag für Statistiken
+    private final StatHUD statHUD = new StatHUD(); // GUI-Panel für Statistiken
 
     public InputManager(Window window, Camera camera) {
         this.windowHandle = window.getHandle();
@@ -55,6 +59,8 @@ public class InputManager {
             if (key == GLFW.GLFW_KEY_R && action == GLFW.GLFW_PRESS) {
                 RkeyCallbacks.forEach(Runnable::run);
             }
+
+
         });
 
         // Mauspositions-Callback

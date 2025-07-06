@@ -37,12 +37,14 @@ public class GameEngine {
         this.weapon = new AK47(camera, renderer);  // Waffe erstellen
         this.targetManager = new TargetManager();  // Ziele initialisieren
         this.raycaster = new Raycasting(targetManager, weapon.getStats()); // Trefferprüfung
-        this.overlayRenderer = new OverlayRenderer(weapon.getStats()); // UI-Renderer
+        this.overlayRenderer = new OverlayRenderer(weapon.getStats(), window); // UI-Renderer
 
         // Eingabecallbacks registrieren
         inputManager.addLeftClickCallback(this::handleShoot);  // Linksklick: Schießen
         inputManager.addRightClickCallback(weapon::onRightPress); // Rechtsklick: Zielfernrohr
         inputManager.addRkeyCallback(weapon::Reload);      //R-Taste: Nachladen
+
+        overlayRenderer.getIngameHUD().setEquippedWeapon(weapon);
     }
 
     /**
@@ -82,9 +84,10 @@ public class GameEngine {
             }
 
             // Rendering durchführen
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Puffer löschen
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Puffer löschen
             renderer.render(camera, targetManager);  // 3D-Szene rendern
-            overlayRenderer.render();                // UI rendern
+            overlayRenderer.render(window);                // UI rendern
+
 
             window.update(); // Frame abschließen
         }
@@ -93,6 +96,7 @@ public class GameEngine {
         showFinalStats = true;  //Grade useless, maybe needed for render
         printFinalStatistics(); // Statistik ausgeben
         window.cleanup();       // Ressourcen freigeben
+        overlayRenderer.cleanup(); // UI-Renderer aufräumen
     }
 
     /**

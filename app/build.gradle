@@ -26,10 +26,12 @@ dependencies {
     implementation "org.lwjgl:lwjgl-glfw:3.3.6"
     implementation "org.lwjgl:lwjgl-opengl:3.3.6"
     implementation 'org.joml:joml:1.10.3'
+    implementation "org.lwjgl:lwjgl-nanovg:3.3.6" // Obwohl das schon in legui enthalten ist, FUNKTIONIERT ES SONST NICHT?
     // LEGUI - https://github.com/SpinyOwl/legui
     implementation group: 'com.spinyowl', name: 'legui', version: legui_version, changing: true
     // SpinyGUI - https://github.com/SpinyOwl/SpinyGUI/tree/develop
     implementation 'com.github.SpinyOwl:SpinyGUI:develop'
+
 
     //repo nicht in Maven Central, brauchen wir eig. auch nicht
     //implementation "org.lwjgl:lwjgl-glu:3.3.6"

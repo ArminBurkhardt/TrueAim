@@ -1,4 +1,5 @@
 package org.trueaim.entities.weapons;
+import lombok.Getter;
 import org.joml.Vector2f;
 import org.trueaim.Camera;
 import org.trueaim.rendering.Renderer;
@@ -14,18 +15,24 @@ public class AK47 extends GenericWeapon {
     //TODO
     private final Renderer renderer;  //Referenz zu Renderer (für FOV Change)
     protected int ammo = 30;                // Magazingröße
+    private int bulletCount = 30;           // Aktuelle Munitionsanzahl
 
     public AK47(Camera camera, Renderer renderer) {
         this.camera = camera;
         this.renderer = renderer;
     }
-    
+
+    @Override
+    public int getAmmo() { return ammo; }
+    @Override
+    public int getBulletCount() { return bulletCount; }
+
     /**
      * Überprüft ob Munition in der Waffe ist
      */
     @Override
     public boolean hasAmmo(){
-        return ammo > 0;
+        return bulletCount > 0;
     }
 
     /**
@@ -33,7 +40,7 @@ public class AK47 extends GenericWeapon {
      * Setzt die Munition auf das Maximum zurück.
      */
     public void Reload(){
-        ammo = 30; // Setzt die Munition auf das Maximum zurück
+        bulletCount = ammo; // Setzt die Munition auf das Maximum zurück
         consecutiveShots = 0; // Schusskette zurücksetzen
         lastShotTime = 0; // Letzten Schusszeitpunkt zurücksetzen
         stats.registerReload(); // Statistik aktualisieren
@@ -45,7 +52,7 @@ public class AK47 extends GenericWeapon {
     @Override
     public void onLeftPress() {
         applyRecoil();        // Rückstoß anwenden
-        ammo--;              // Munition verringern
+        bulletCount--;              // Munition verringern
         stats.incrementShotsFired(); // Statistik aktualisieren
         consecutiveShots++;   // Schusszähler erhöhen
         lastShotTime = System.currentTimeMillis(); // Zeit speichern
