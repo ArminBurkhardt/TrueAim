@@ -27,7 +27,12 @@ public abstract class GenericWeapon implements Shootable {
 
     // Zugriffsmethoden
     public StatTracker getStats() { return stats; }
+    public void setStats(StatTracker tracker) {
+        this.stats = tracker; // Setzt die Statistiken der Waffe
+    };
 
     public abstract int getAmmo();
     public abstract int getBulletCount();
+    public abstract void Reload();
+
 }

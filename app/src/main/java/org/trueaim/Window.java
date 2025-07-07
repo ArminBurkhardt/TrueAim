@@ -26,10 +26,12 @@ public class Window {
     private static long[] monitors = null;
     private static boolean isfullscreen = false;
     public boolean antialiasing = false; // Antialiasing-Flag
+    private boolean forceClose; // Flag zum Erzwingen des Schließens
 
     public Window(int width, int height, String title) {
         this.width = width;
         this.height = height;
+        forceClose = false;
 
         // GLFW Initialisierung
         if (!glfwInit()) throw new IllegalStateException("GLFW konnte nicht initialisiert werden");
@@ -67,8 +69,6 @@ public class Window {
         glfwMakeContextCurrent(windowHandle);
         createCapabilities();  // LWJGL-Fähigkeiten laden
 
-        // Vollbildmodus aktivieren
-
         // read monitors
         PointerBuffer pointerBuffer = glfwGetMonitors();
         int remaining = pointerBuffer.remaining();
@@ -76,6 +76,7 @@ public class Window {
         for (int i = 0; i < remaining; i++) {
             monitors[i] = pointerBuffer.get(i);
         }
+        // Vollbildmodus aktivieren
         toggleFullscreen();
 
         // Grundlegende OpenGL-Einstellungen
@@ -99,8 +100,9 @@ public class Window {
     public long getHandle() { return windowHandle; }
     public int getWidth() { return width; }
     public int getHeight() { return height; }
-    public boolean shouldClose() { return glfwWindowShouldClose(windowHandle); }
+    public boolean shouldClose() { return (glfwWindowShouldClose(windowHandle) || forceClose); }
     public float getDeltaTime() { return deltaTime; }
+    public void forceClose() { forceClose = true; }
 
     /**
      * Aktualisiert das Fenster für den nächsten Frame.

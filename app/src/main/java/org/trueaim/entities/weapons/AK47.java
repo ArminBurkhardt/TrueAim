@@ -39,6 +39,7 @@ public class AK47 extends GenericWeapon {
      * Lädt die Waffe nach.
      * Setzt die Munition auf das Maximum zurück.
      */
+    @Override
     public void Reload(){
         bulletCount = ammo; // Setzt die Munition auf das Maximum zurück
         consecutiveShots = 0; // Schusskette zurücksetzen

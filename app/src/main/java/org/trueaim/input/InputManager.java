@@ -2,7 +2,7 @@ package org.trueaim.input;
 import org.lwjgl.glfw.GLFW;
 import org.trueaim.Camera;
 import org.trueaim.Window;
-import org.trueaim.rendering.GUI.StatHUD;
+import org.trueaim.rendering.GUI.StatGUI;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +28,11 @@ public class InputManager {
     private final List<Runnable> leftClickCallbacks = new ArrayList<>();  // Linksklick-Handler
     private final List<Runnable> rightClickCallbacks = new ArrayList<>(); // Rechtsklick-Handler
     private final List<Runnable> RkeyCallbacks = new ArrayList<>(); // Rkey-Handler
+    private final List<Runnable> leftReleaseCallbacks = new ArrayList<>();  // Links loslassen-Handler
+    private final List<Runnable> rightRealseCallbacks = new ArrayList<>(); // Rechts loslassen-Handler
     private final Window window;
-    private boolean showStatMenu = false; // Flag für Statistiken
-    private final StatHUD statHUD = new StatHUD(); // GUI-Panel für Statistiken
+    private boolean showEscMenu = false; // Flag für Escape Menü
+    private StatGUI statGUI; // GUI-Panel für Statistiken
 
     public InputManager(Window window, Camera camera) {
         this.windowHandle = window.getHandle();
@@ -39,6 +41,12 @@ public class InputManager {
         initCallbacks();  // GLFW-Callbacks registrieren
         setMouseLock(true);  // Maus initial sperren
     }
+
+    public void setStatGUI(StatGUI statGUI) {
+        this.statGUI = statGUI; // GUI-Panel für Statistiken setzen
+        this.leftClickCallbacks.add(statGUI::onClick);
+    }
+
 
     /**
      * Registriert GLFW-Eingabe-Callbacks.
@@ -53,8 +61,20 @@ public class InputManager {
             // ESCAPE zum Freigeben/Sperren der Maus
             if (key == GLFW.GLFW_KEY_ESCAPE && action == GLFW.GLFW_PRESS) {
                 toggleMouseLock();
+                // this.window.toggleFullscreen();
+                showEscMenu = !showEscMenu; // Menü anzeigen/verstecken
+                if (showEscMenu) {
+                    statGUI.enable(); // Statistiken anzeigen
+                } else {
+                    statGUI.disable(); // Statistiken ausblenden
+                }
+
+            }
+
+            if (key == GLFW.GLFW_KEY_F11 && action == GLFW.GLFW_PRESS) {
                 this.window.toggleFullscreen();
             }
+
 
             if (key == GLFW.GLFW_KEY_R && action == GLFW.GLFW_PRESS) {
                 RkeyCallbacks.forEach(Runnable::run);
@@ -94,6 +114,14 @@ public class InputManager {
             if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT && action == GLFW.GLFW_PRESS) {
                 rightClickCallbacks.forEach(Runnable::run);
             }
+            // Links- oder Rechtsklick loslassen
+            if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT && action == GLFW.GLFW_RELEASE) {
+                leftReleaseCallbacks.forEach(Runnable::run);
+            }
+            if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT && action == GLFW.GLFW_RELEASE) {
+                rightRealseCallbacks.forEach(Runnable::run);
+            }
+
         });
     }
 

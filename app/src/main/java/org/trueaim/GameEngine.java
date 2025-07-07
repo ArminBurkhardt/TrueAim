@@ -2,7 +2,9 @@ package org.trueaim;
 
 import org.trueaim.entities.targets.Target;
 import org.trueaim.entities.weapons.AK47;
+import org.trueaim.entities.weapons.GenericWeapon;
 import org.trueaim.input.InputManager;
+import org.trueaim.rendering.GUI.StatGUI;
 import org.trueaim.rendering.OverlayRenderer;
 import org.trueaim.rendering.Renderer;
 import org.trueaim.entities.targets.TargetManager;
@@ -26,8 +28,9 @@ public class GameEngine {
     private final OverlayRenderer overlayRenderer; // UI-Renderer
     private final TargetManager targetManager;     // Zielmanager
     private final Raycasting raycaster;     // Treffererkennung
-    private final AK47 weapon;              // Spielerwaffe
+    private GenericWeapon weapon;              // Spielerwaffe
     private boolean showFinalStats = false; // Flag für Statistikanzeige
+    private final StatGUI statGUI; // GUI-Panel für Statistiken
 
     public GameEngine(Window window, InputManager inputManager, Camera camera) {
         this.window = window;
@@ -39,12 +42,29 @@ public class GameEngine {
         this.raycaster = new Raycasting(targetManager, weapon.getStats()); // Trefferprüfung
         this.overlayRenderer = new OverlayRenderer(weapon.getStats(), window); // UI-Renderer
 
+
         // Eingabecallbacks registrieren
         inputManager.addLeftClickCallback(this::handleShoot);  // Linksklick: Schießen
         inputManager.addRightClickCallback(weapon::onRightPress); // Rechtsklick: Zielfernrohr
         inputManager.addRkeyCallback(weapon::Reload);      //R-Taste: Nachladen
 
         overlayRenderer.getIngameHUD().setEquippedWeapon(weapon);
+
+        this.statGUI = new StatGUI(window, weapon.getStats()); // Statistik-UI initialisieren
+        inputManager.setStatGUI(statGUI); // Eingabemanager mit Statistik-UI verbinden
+
+    }
+
+    public StatTracker getStatTracker() {
+        return weapon.getStats();
+    }
+
+    public void setWeapon(GenericWeapon weapon) {
+        StatTracker tracker = getStatTracker();
+        weapon.setStats(tracker); // Überträgt die Statistiken der aktuellen Waffe auf die neue Waffe
+        this.weapon = weapon; // Setzt die Statistiken der neuen Waffe
+        this.overlayRenderer.getIngameHUD().setEquippedWeapon(weapon); // Aktualisiert die HUD-Waffe
+        // this.statGUI.setStatTracker(tracker); // Aktualisiert die Statistik-UI
     }
 
     /**
@@ -88,6 +108,7 @@ public class GameEngine {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // Puffer löschen
             renderer.render(camera, targetManager);  // 3D-Szene rendern
             overlayRenderer.render(window);                // UI rendern
+            statGUI.render(window);                  // Escape-UI /Statistik-UI rendern
 
 
             window.update(); // Frame abschließen

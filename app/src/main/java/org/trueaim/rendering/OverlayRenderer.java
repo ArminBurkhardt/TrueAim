@@ -24,7 +24,7 @@ public class OverlayRenderer {
         this.stats = stats;
         this.crosshairRenderer = new CrosshairRenderer();
         this.heatmapRenderer = new HeatmapRenderer();
-        this.ingameHUD = new IngameHUD(window);
+        this.ingameHUD = new IngameHUD(window, stats);
     }
 
     /**

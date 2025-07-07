@@ -1,5 +1,6 @@
 package org.trueaim;
 import org.trueaim.input.InputManager;
+import org.trueaim.rendering.GUI.StatGUI;
 
 /**
  * Hauptklasse der Anwendung.
