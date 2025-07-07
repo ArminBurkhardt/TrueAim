@@ -59,6 +59,7 @@ public class GameEngine {
         if (weapon.hasAmmo()){
             raycaster.checkHit(camera.getPosition(), camera.getFront()); // Trefferüberprüfung
             weapon.onLeftPress();  // Waffenlogik aktivieren
+            camera.getRotation(); //Debug aufruf TODO delete
         }
     }
 
@@ -113,6 +114,7 @@ public class GameEngine {
     /**
      * Gibt Spielstatistiken in der Konsole aus.
      */
+    //TODO entfernen wenn man Statistiken am Ende dann rendert
     private void printFinalStatistics() {
         StatTracker stats = weapon.getStats();
         System.out.println("\n=== FINALE STATISTIKEN ===");

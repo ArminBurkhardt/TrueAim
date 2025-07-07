@@ -27,7 +27,7 @@ public class InputManager {
     private boolean firstMouse = true;    // Erste Bewegung?
     private final List<Runnable> leftClickCallbacks = new ArrayList<>();  // Linksklick-Handler
     private final List<Runnable> rightClickCallbacks = new ArrayList<>(); // Rechtsklick-Handler
-    private final List<Runnable> RkeyCallbacks = new ArrayList<>(); // Rechtsklick-Handler
+    private final List<Runnable> RkeyCallbacks = new ArrayList<>(); // Rkey-Handler
     private final Window window;
     private boolean showStatMenu = false; // Flag für Statistiken
     private final StatHUD statHUD = new StatHUD(); // GUI-Panel für Statistiken

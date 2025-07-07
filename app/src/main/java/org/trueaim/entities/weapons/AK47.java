@@ -12,9 +12,9 @@ public class AK47 extends GenericWeapon {
     private int consecutiveShots = 0; // Anzahl aufeinanderfolgender Schüsse
     private long lastShotTime = 0;    // Zeitpunkt des letzten Schusses
     private final Camera camera;      // Referenz zur Spielkamera
-    //TODO
+    //TODO renderer entfernen, falls nicht für zoom benötigt
     private final Renderer renderer;  //Referenz zu Renderer (für FOV Change)
-    protected int ammo = 30;                // Magazingröße
+    protected int ammo = 30;             // Magazingröße
     private int bulletCount = 30;           // Aktuelle Munitionsanzahl
 
     public AK47(Camera camera, Renderer renderer) {

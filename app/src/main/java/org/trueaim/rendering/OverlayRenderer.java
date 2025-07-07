@@ -30,8 +30,8 @@ public class OverlayRenderer {
     /**
      * Rendert alle UI-Elemente.
      */
-    //TODO heatmap und stats vml nicht hier, aber ammo etc (vml Lasse AmmoRenderer)
-
+    //TODO heatmap und stats vml nicht hier, aber ammo etc (vml Klasse AmmoRenderer)
+    //TODO maybe Klasse löschen und CrosshairRenderer und AmmoRenderer in GameEngine ausführen (TBD)
     public void render(Window window) {
         crosshairRenderer.render();  // Fadenkreuz
         heatmapRenderer.render();    // Heatmap (Platzhalter)

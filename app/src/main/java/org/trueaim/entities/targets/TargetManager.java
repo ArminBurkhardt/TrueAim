@@ -16,6 +16,12 @@ public class TargetManager {
     private final List<Target> targets = new ArrayList<>(); // Zielobjekte
     private final Random random = new Random();             // Zufallsgenerator
 
+    // Neue Bereichsgrenzen für die Zielpositionierung
+    private final float MIN_X = 5f;      // Start der Ziele (nicht zu nah an Kamera)
+    private final float MAX_X = 25f;     // Ende vor der Wand (x=30)
+    private final float MIN_Z = -10f;    // Linke Grenze
+    private final float MAX_Z = 10f;     // Rechte Grenze
+
     public TargetManager() {
         spawnInitialTargets();  // Initialziele erstellen
     }
@@ -25,17 +31,16 @@ public class TargetManager {
      */
     private void spawnInitialTargets() {
         // Statische Ziele
-        targets.add(new Target(new Vector3f(0, 0, -5)));
-        targets.add(new Target(new Vector3f(2.5f, 0, -6)));
-        targets.add(new Target(new Vector3f(-2, 0, -7)));
-        targets.add(new Target(new Vector3f(-1.5f, 0, -6)));
+        targets.add(new Target(new Vector3f(10, 0, -5)));
+        targets.add(new Target(new Vector3f(15, 0, 3)));
+        targets.add(new Target(new Vector3f(20, 0, -2)));
+        targets.add(new Target(new Vector3f(12, 0, 4)));
 
-        // Bewegliche Ziele
+        // Bewegliches Ziel - Bewegung in Z-Richtung
         targets.add(new MovingTarget(
-                new Vector3f(1.5f, 0, -8),
-                new Vector3f(0.5f, 0, 0)  // Bewegungsrichtung
+                new Vector3f(18, 0, 0),      // Startposition
+                new Vector3f(0, 0, 2.0f)     // Erhöhte Geschwindigkeit
         ));
-
     }
 
     // Zugriffsmethoden
@@ -58,13 +63,15 @@ public class TargetManager {
 
         // Neue zufällige Positionen
         for (Target target : targets) {
-            float x = random.nextFloat() * 8 - 4; // X: -4 bis +4
-            float z = -5 - random.nextFloat() * 5; // Z: -5 bis -10
+            // Neue zufällige Position im definierten Bereich
+            float x = MIN_X + random.nextFloat() * (MAX_X - MIN_X);
+            float z = MIN_Z + random.nextFloat() * (MAX_Z - MIN_Z);
             target.setPosition(new Vector3f(x, 0, z));
         }
     }
 
     // Innere Klassen für spezielle Zieltypen
+    // TODO eigene Klasse wenn man Targets erweitern will
     private static class MovingTarget extends Target {
         public MovingTarget(Vector3f position, Vector3f velocity) {
             super(position, velocity);
@@ -75,7 +82,7 @@ public class TargetManager {
             super.update(deltaTime);
             // Richtungswechsel bei Grenzerreichen
             //TODO auch abfrage für andere Richtungen falls man Movement anpassen will
-            if (getPosition().x > 3 || getPosition().x < -3) {
+            if (getPosition().z > 7 || getPosition().z < -7) {
                 setVelocity(getVelocity().mul(-1, new Vector3f()));
             }
         }

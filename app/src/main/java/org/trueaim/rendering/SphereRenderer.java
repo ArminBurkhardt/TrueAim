@@ -3,12 +3,10 @@ import static org.lwjgl.opengl.GL11.*;
 
 /**
  * Rendert einfache Kugeln
- * vielleicht Löschen wenn richtige Targets implementiert werden
  */
-
 //TODO maybe löschen wenn  Targets verbessert werden, muss aber nicht sein
 public class SphereRenderer {
-    private int displayListId;  // OpenGL-Display-List-ID
+    private final int displayListId;  // OpenGL-Display-List-ID
 
     public SphereRenderer(float radius) {
         // Display-List für Kugel erstellen

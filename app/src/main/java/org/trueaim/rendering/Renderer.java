@@ -5,7 +5,6 @@ import org.trueaim.entities.targets.Target;
 import org.trueaim.entities.targets.TargetManager;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import java.util.List;
 import static org.lwjgl.opengl.GL11.*;
 
 /**
@@ -22,7 +21,7 @@ public class Renderer {
         // Projektionsmatrix einstellen (Perspektive)
         proj.identity().perspective(
                 (float)Math.toRadians(FOV),  // FOV
-                (float)width/height,       // Seitenverhältnis
+                (float)width/height,        // Seitenverhältnis
                 0.1f,                       // Nahclipping
                 100f                        // Fernclipping
         );
@@ -84,22 +83,25 @@ public class Renderer {
      * Rendert den Boden und Wände.
      */
     private void renderFloor() {
+        float d = 25; // Anpassung der Distanz TODO
+
         // Boden (grün)
         glColor3f(0.2f, 0.6f, 0.3f);
         glBegin(GL_QUADS);
-        glVertex3f(-10, 0, -10);
-        glVertex3f(10, 0, -10);
-        glVertex3f(10, 0, 10);
-        glVertex3f(-10, 0, 10);
+        glVertex3f(-10, 0, -10);  // Hinten links
+        glVertex3f(-10, 0, 10);   // Vorne links
+        glVertex3f(d, 0, 10);    // Vorne rechts
+        glVertex3f(d, 0, -10);   // Hinten rechts
         glEnd();
 
         // Rückwand (grau)
         glColor3f(0.7f, 0.7f, 0.7f);
         glBegin(GL_QUADS);
-        glVertex3f(-10, 0, -10);
-        glVertex3f(10, 0, -10);
-        glVertex3f(10, 5, -10);
-        glVertex3f(-10, 5, -10);
+        glVertex3f(d, 0, -10);   // Unten links
+        glVertex3f(d, 0, 10);    // Unten rechts
+        glVertex3f(d, 5, 10);    // Oben rechts
+        glVertex3f(d, 5, -10);   // Oben links
         glEnd();
     }
+
 }

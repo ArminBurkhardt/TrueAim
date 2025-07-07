@@ -17,7 +17,6 @@ import static org.lwjgl.system.MemoryUtil.NULL;
  * - OpenGL-Fähigkeitsprüfung
  * - Zeitmanagement für Frame-Berechnungen
  */
-//TODO maybe Fullscreen, wenn dann aber erst am Ende
 public class Window {
     private final long windowHandle;  // GLFW-Fensterreferenz
     private final int width;          // Fensterbreite in Pixeln
