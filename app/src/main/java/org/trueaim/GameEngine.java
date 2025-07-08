@@ -50,7 +50,7 @@ public class GameEngine {
 
         overlayRenderer.getIngameHUD().setEquippedWeapon(weapon);
 
-        this.statGUI = new StatGUI(window, weapon.getStats()); // Statistik-UI initialisieren
+        this.statGUI = new StatGUI(window, weapon.getStats(), overlayRenderer, targetManager); // Statistik-UI initialisieren
         inputManager.setStatGUI(statGUI); // Eingabemanager mit Statistik-UI verbinden
 
     }
@@ -99,6 +99,13 @@ public class GameEngine {
             inputManager.update(deltaTime);   // Eingaben verarbeiten
             targetManager.update(deltaTime);  // Ziele aktualisieren
 
+            // Waffe deaktivieren, falls im Menü
+            if (statGUI.isVisible() && weapon.isActive()) {
+                weapon.setActive(false); // Waffe deaktivieren, wenn Statistik-UI sichtbar ist
+            } else if (!statGUI.isVisible() && !weapon.isActive()) {
+                weapon.setActive(true); // Waffe aktivieren, wenn Statistik-UI nicht sichtbar ist
+            }
+
             // Ziele zurücksetzen, wenn alle getroffen
             if (allTargetsHit()) {
                 targetManager.resetAll();
@@ -118,6 +125,7 @@ public class GameEngine {
         showFinalStats = true;  //Grade useless, maybe needed for render
         printFinalStatistics(); // Statistik ausgeben
         window.cleanup();       // Ressourcen freigeben
+        statGUI.cleanup();      // Statistik-UI aufräumen
         overlayRenderer.cleanup(); // UI-Renderer aufräumen
     }
 

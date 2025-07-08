@@ -16,6 +16,9 @@ public class AK47 extends GenericWeapon {
     private final Renderer renderer;  //Referenz zu Renderer (für FOV Change)
     protected int ammo = 30;             // Magazingröße
     private int bulletCount = 30;           // Aktuelle Munitionsanzahl
+    private boolean active = true;      // Aktiviert/Deaktiviert Schießen
+    private boolean fullAuto = true;    // Vollautomatischer Modus
+                                        // TODO: später vllt Single Shot Modus hinzufügen oder andere Waffe mit Single Shot Modus hinzufügen
 
     public AK47(Camera camera, Renderer renderer) {
         this.camera = camera;
@@ -26,6 +29,24 @@ public class AK47 extends GenericWeapon {
     public int getAmmo() { return ammo; }
     @Override
     public int getBulletCount() { return bulletCount; }
+
+    @Override
+    public boolean isActive() {
+        return this.active;
+    }
+    @Override
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    @Override
+    public boolean isFullAuto() {
+        return fullAuto;
+    }
+    @Override
+    public void setFullAuto(boolean fullAuto) {
+        this.fullAuto = fullAuto;
+    }
 
     /**
      * Überprüft ob Munition in der Waffe ist
@@ -41,6 +62,9 @@ public class AK47 extends GenericWeapon {
      */
     @Override
     public void Reload(){
+        if (!active) {
+            return; // Waffe ist deaktiviert, Nachladen nicht möglich
+        }
         bulletCount = ammo; // Setzt die Munition auf das Maximum zurück
         consecutiveShots = 0; // Schusskette zurücksetzen
         lastShotTime = 0; // Letzten Schusszeitpunkt zurücksetzen
@@ -52,6 +76,9 @@ public class AK47 extends GenericWeapon {
     //Schusseffekte (Raycasting für Schuss / Ammo überprüfung wird in GameEngine gestartet)
     @Override
     public void onLeftPress() {
+        if (!active) {
+            return; // Waffe ist deaktiviert
+        }
         applyRecoil();        // Rückstoß anwenden
         bulletCount--;              // Munition verringern
         stats.incrementShotsFired(); // Statistik aktualisieren

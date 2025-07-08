@@ -9,7 +9,12 @@ public class CrosshairRenderer {
      * Zeichnet das Fadenkreuz.
      * Verwendet orthogonale Projektung für 2D-Rendering.
      */
+    private boolean isVisible = true; // Sichtbarkeit des Fadenkreuzes
+
     public void render() {
+        if (!isVisible) {
+            return; // Fadenkreuz nicht zeichnen, wenn es nicht sichtbar ist
+        }
         glDisable(GL_DEPTH_TEST);  // Tiefentest deaktivieren
 
         // Projektionsmatrix für 2D setzen
@@ -42,5 +47,9 @@ public class CrosshairRenderer {
         glMatrixMode(GL_MODELVIEW);
 
         glEnable(GL_DEPTH_TEST);  // Tiefentest wieder aktivieren
+    }
+
+    public void setVisible(boolean visible) {
+        this.isVisible = visible; // Sichtbarkeit des Fadenkreuzes setzen
     }
 }

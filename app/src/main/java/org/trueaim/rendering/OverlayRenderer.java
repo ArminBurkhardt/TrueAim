@@ -2,6 +2,7 @@ package org.trueaim.rendering;
 
 import lombok.Getter;
 import org.trueaim.Window;
+import org.trueaim.rendering.GUI.Crosshairs;
 import org.trueaim.rendering.GUI.IngameHUD;
 import org.trueaim.stats.StatTracker;
 
@@ -19,12 +20,15 @@ public class OverlayRenderer {
     private final CrosshairRenderer crosshairRenderer;
     private final HeatmapRenderer heatmapRenderer;
     private final IngameHUD ingameHUD;
+    private Crosshairs crosshair;
 
     public OverlayRenderer(StatTracker stats, Window window) {
         this.stats = stats;
         this.crosshairRenderer = new CrosshairRenderer();
         this.heatmapRenderer = new HeatmapRenderer();
         this.ingameHUD = new IngameHUD(window, stats);
+        this.crosshair = Crosshairs.DEFAULT; // Fadenkreuz initialisieren
+        this.ingameHUD.setCrosshair(crosshair); // Fadenkreuz im HUD setzen
     }
 
     /**
@@ -37,6 +41,21 @@ public class OverlayRenderer {
         heatmapRenderer.render();    // Heatmap (Platzhalter)
         ingameHUD.render(window);
         // Statistik wird nur am Ende angezeigt
+    }
+
+    public void setCrosshair(Crosshairs crosshair) {
+        this.crosshair = crosshair; // Fadenkreuz setzen
+        // Fadenkreuz im Renderer aktualisieren
+        if (crosshair == Crosshairs.DEFAULT) {
+            crosshairRenderer.setVisible(true); // Fadenkreuz sichtbar machen
+        } else {
+            crosshairRenderer.setVisible(false); // Fadenkreuz unsichtbar machen
+        }
+        ingameHUD.setCrosshair(crosshair); // Fadenkreuz im HUD aktualisieren
+    }
+
+    public Crosshairs getCrosshair() {
+        return crosshair; // Aktuelles Fadenkreuz zurückgeben
     }
 
     public IngameHUD getIngameHUD() {

@@ -20,16 +20,19 @@ public class Button {
     private int w;
     private int h;
     private String label;
-    private boolean isPressed;
+    private boolean isPressed; // Button ist gedrückt (für Toggle-Buttons)
+    private boolean togglable = false; // Button kann umgeschaltet werden
+    private boolean enabled;
     private boolean isHovered;
     private Runnable onClickAction;
-    private boolean isVisible;
+    private boolean isVisible;      // Sichtbarkeit des Buttons, kann unsichtbar sein, aber immer noch aktiv
     private NVGColor colorA;
     private NVGColor colorB;
     private NVGColor colorC;
     private NVGPaint paint;
     private final String FONT_NAME;
     DoubleBuffer posx, posy; // Position für Mauszeiger
+    private Runnable drawInButton = null; // Optionale Funktion für benutzerdefinierte Zeichnung im Button
 
     public Button(int x, int y, int width, int height, String label, Runnable onClickAction, String fontName) {
         this.x = x;
@@ -40,9 +43,38 @@ public class Button {
         this.onClickAction = onClickAction;
         this.isPressed = false;
         this.isHovered = false;
+        this.enabled = true; // Button ist standardmäßig aktiviert
         this.isVisible = true; // Button ist standardmäßig sichtbar
         this.FONT_NAME = fontName;
         init();
+
+    }
+    public Button(int x, int y, int width, int height, String label, Runnable onClickAction, String fontName, Runnable drawInButton) {
+        this.x = x;
+        this.y = y;
+        this.w = width;
+        this.h = height;
+        this.label = label;
+        this.onClickAction = onClickAction;
+        this.isPressed = false;
+        this.isHovered = false;
+        this.enabled = true; // Button ist standardmäßig aktiviert
+        this.isVisible = true; // Button ist standardmäßig sichtbar
+        this.FONT_NAME = fontName;
+        this.drawInButton = drawInButton;
+        init();
+
+    }
+
+    public Button(int x, int y, int width, int height, String label, Runnable onClickAction, String fontName, Runnable drawInButton, boolean togglable) {
+        this(x, y, width, height, label, onClickAction, fontName, drawInButton);
+        this.togglable = togglable; // Button kann umgeschaltet werden
+
+    }
+
+    public Button(int x, int y, int width, int height, String label, Runnable onClickAction, String fontName, boolean togglable) {
+        this(x, y, width, height, label, onClickAction, fontName);
+        this.togglable = togglable; // Button kann umgeschaltet werden
 
     }
 
@@ -72,12 +104,34 @@ public class Button {
         return label;
     }
 
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void enable() {
+        this.enabled = true;
+    }
+    public void disable() {
+        this.enabled = false;
+    }
+
+    public boolean isPressed() {
+        return isPressed;
+    }
+    public void setPressed(boolean pressed) {
+        this.isPressed = pressed;
+    }
+
     public void setOnClickAction(Runnable onClickAction) {
         this.onClickAction = onClickAction;
     }
 
     public void onClick() {
-        if (onClickAction != null && isHovered) {
+        if (onClickAction != null && isHovered && enabled) {
             onClickAction.run();
         }
     }
@@ -96,8 +150,12 @@ public class Button {
         // glfwSetCursorPos(window.getHandle(), x + w / 2, y + h / 2); // Mauszeiger zentrieren
 
         // Button Hintergrund
-        if (isHovered) {
+        if (enabled && isPressed) {
+            nvgBoxGradient(vg, x, y + 4, w, h, 4 * 2, 20, rgba(0x20, 0x20, 0x20, 255, colorA), rgba(0x30, 0x30, 0x30, 200, colorB), paint);
+        } else if (isHovered && enabled) {
             nvgBoxGradient(vg, x, y + 4, w, h, 4 * 2, 20, rgba(0x1a, 0x3b, 0x69, 255, colorA), rgba(0x1a, 0x3b, 0x69, 180, colorB), paint);
+        } else if (enabled) {
+            nvgBoxGradient(vg, x, y + 4, w, h, 4 * 2, 20, rgba(0x10, 0x20, 0x30, 255, colorA), rgba(0, 0, 0, 200, colorB), paint);
         } else {
             nvgBoxGradient(vg, x, y + 4, w, h, 4 * 2, 20, rgba(0, 0, 0, 255, colorA), rgba(0, 0, 0, 200, colorB), paint);
         }
@@ -106,13 +164,17 @@ public class Button {
         nvgFillPaint(vg, paint);
         nvgFill(vg);
 
+        if (drawInButton != null) {
+            drawInButton.run(); // Benutzerdefinierte Zeichnung im Button ausführen
+        }
+
         // Button Text
-        int color = 0xff; // Textfarbe
+        int color = (enabled) ? 0xff: 0x80; // Textfarbe
         nvgFontSize(vg, 25.0f);
         nvgFontFace(vg, FONT_NAME);
         nvgFillColor(vg, rgba(color, color, color, 200, colorC));
         nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-        nvgText(vg, x + w / 2f, y + h / 2, label);
+        nvgText(vg, x + w / 2f, y + h / 2f, label);
 
     }
 

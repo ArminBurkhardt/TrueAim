@@ -13,6 +13,8 @@ public abstract class GenericWeapon implements Shootable {
     protected StatTracker stats = new StatTracker(); // Waffenstatistik
     protected int ammo;                // Magazingröße
     private int bulletCount;           // Aktuelle Munitionsanzahl
+    private boolean active;
+    private boolean fullAuto; // Vollautomatischer Modus
 
     @Override
     public abstract void onLeftPress();
@@ -34,5 +36,8 @@ public abstract class GenericWeapon implements Shootable {
     public abstract int getAmmo();
     public abstract int getBulletCount();
     public abstract void Reload();
-
+    public abstract boolean isActive();
+    public abstract void setActive(boolean active);
+    public abstract boolean isFullAuto();
+    public abstract void setFullAuto(boolean fullAuto);
 }

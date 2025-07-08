@@ -8,6 +8,7 @@ import org.lwjgl.system.MemoryUtil;
 import org.trueaim.Utils;
 import org.trueaim.Window;
 import org.trueaim.entities.weapons.GenericWeapon;
+import org.trueaim.rendering.OverlayRenderer;
 import org.trueaim.stats.StatTracker;
 
 
@@ -32,6 +33,8 @@ public class IngameHUD {
     private long timeSinceLastUpdate = System.nanoTime(); // Zeit seit der letzten Aktualisierung in Nanosekunden
     private int frameCount = 0; // Anzahl der Frames seit der letzten Aktualisierung
     private double fps = 0; // Berechnete FPS
+    private Crosshairs crosshair;
+    private CrosshairManager crosshairManager;
 
     public IngameHUD(Window window, StatTracker statTracker) {
         try {this.init(window);
@@ -41,6 +44,8 @@ public class IngameHUD {
             System.exit(1);
         }
         this.statTracker = statTracker;
+        this.crosshair = Crosshairs.DEFAULT;
+        this.crosshairManager = new CrosshairManager();
     }
 
     public void setEquippedWeapon(GenericWeapon weapon) {
@@ -162,7 +167,7 @@ public class IngameHUD {
         nvgText(vg, x, y + 2*dist,
                 String.format("Headshot Rate: %.2f%%", statTracker.getHeadshotRate()));
         nvgText(vg, x, y + 3*dist,
-                String.format("Shots per Min: %.2f%%", statTracker.getShotsPerMinute()));
+                String.format("Shots per Min: %.2f", statTracker.getShotsPerMinute()));
         nvgText(vg, x, y + 4*dist,
                 String.format("Hits: %s", statTracker.getHits()));
 
@@ -241,6 +246,14 @@ public class IngameHUD {
         }
     }
 
+    public void drawCrosshair(Window window) {
+        switch (crosshair) {
+            case PLUS -> crosshairManager.drawPreset1(vg, window.getWidth() / 2, window.getHeight() / 2, 20, 0xff);
+            case DOT -> crosshairManager.drawPreset2(vg, window.getWidth() / 2, window.getHeight() / 2, 2, 0xff);
+            case SMALL_PLUS -> crosshairManager.drawPreset3(vg, window.getWidth() / 2, window.getHeight() / 2, 15, 0xff);
+        }
+    }
+
     public void render(Window window) {
         nvgBeginFrame(vg, window.getWidth(), window.getHeight(), 1.0f);
         calculateFPS();
@@ -249,6 +262,7 @@ public class IngameHUD {
 
         drawStats(window, OverlaySetting.TOP_RIGHT);
         drawWeaponInfo(window);
+        drawCrosshair(window);
 
         nvgEndFrame(vg);
 
@@ -263,10 +277,18 @@ public class IngameHUD {
 
         drawStats(window, orientation);
         drawWeaponInfo(window);
+        drawCrosshair(window);
 
         nvgEndFrame(vg);
 
         window.restoreState();
+    }
+
+    public void setCrosshair(Crosshairs crosshair) {
+        this.crosshair = crosshair;
+    }
+    public Crosshairs getCrosshair() {
+        return crosshair;
     }
 
     private void calculateFPS() {

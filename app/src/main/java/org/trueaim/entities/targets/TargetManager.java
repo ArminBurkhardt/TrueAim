@@ -46,6 +46,43 @@ public class TargetManager {
     // Zugriffsmethoden
     public List<Target> getTargets() { return targets; }
 
+
+    // TODO: vllt könntest du nochmal drüberschauen, ob das so passt
+
+    public void setTargets(int numMoving, int numStatic) {
+        targets.clear(); // Alte Ziele entfernen
+
+        // Statische Ziele
+        for (int i = 0; i < numStatic; i++) {
+            float x = MIN_X + random.nextFloat() * (MAX_X - MIN_X);
+            float z = MIN_Z + random.nextFloat() * (MAX_Z - MIN_Z);
+            targets.add(new Target(new Vector3f(x, 0, z)));
+        }
+
+        // Bewegliche Ziele
+        for (int i = 0; i < numMoving; i++) {
+            float x = MIN_X + random.nextFloat() * (MAX_X - MIN_X);
+            float z = MIN_Z + random.nextFloat() * (MAX_Z - MIN_Z);
+            targets.add(new MovingTarget(new Vector3f(x, 0, z), new Vector3f(0, 0, 2.0f)));
+        }
+    }
+
+    public void setTargetsRandom(int numTargets) {
+        targets.clear(); // Alte Ziele entfernen
+
+        for (int i = 0; i < numTargets; i++) {
+            float x = MIN_X + random.nextFloat() * (MAX_X - MIN_X);
+            float z = MIN_Z + random.nextFloat() * (MAX_Z - MIN_Z);
+            // 50% Chance für bewegliches Ziel
+            if (random.nextBoolean()) {
+                targets.add(new MovingTarget(new Vector3f(x, 0, z), new Vector3f(0, 0, 2.0f)));
+            } else {
+                targets.add(new Target(new Vector3f(x, 0, z)));
+            }
+        }
+    }
+
+
     /**
      * Aktualisiert alle Ziele.
      * @param dt Zeit seit letztem Frame
