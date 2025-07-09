@@ -18,7 +18,7 @@ public class TargetManager {
 
     // Neue Bereichsgrenzen für die Zielpositionierung
     private final float MIN_X = 5f;      // Start der Ziele (nicht zu nah an Kamera)
-    private final float MAX_X = 25f;     // Ende vor der Wand (x=30)
+    private final float MAX_X = 24f;     // Ende vor der Wand (x=30)
     private final float MIN_Z = -10f;    // Linke Grenze
     private final float MAX_Z = 10f;     // Rechte Grenze
 
@@ -117,9 +117,13 @@ public class TargetManager {
         @Override
         public void update(float deltaTime) {
             super.update(deltaTime);
+
             // Richtungswechsel bei Grenzerreichen
             //TODO auch abfrage für andere Richtungen falls man Movement anpassen will
-            if (getPosition().z > 7 || getPosition().z < -7) {
+            if (getPosition().z > 7 && getVelocity().z > 0) {
+                setVelocity(getVelocity().mul(-1, new Vector3f()));
+            }
+            if (getPosition().z < -7 && getVelocity().z < 0) {
                 setVelocity(getVelocity().mul(-1, new Vector3f()));
             }
         }

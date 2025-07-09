@@ -16,6 +16,8 @@ public class Renderer {
     private final SphereRenderer bodyRenderer = new SphereRenderer(0.5f);  // Körperrenderer
     private final SphereRenderer headRenderer = new SphereRenderer(0.25f); // Kopfrenderer
     private int FOV = 70;      //FOV Wert (Standard ist 70)
+    private int width;         // Fensterbreite
+    private int height;        // Fensterhöhe
 
     public Renderer(int width, int height) {
         // Projektionsmatrix einstellen (Perspektive)
@@ -26,6 +28,8 @@ public class Renderer {
                 100f                        // Fernclipping
         );
         glEnable(GL_DEPTH_TEST);  // Tiefentest aktivieren
+        this.width = width;
+        this.height = height;
     }
 
     /**
@@ -33,7 +37,12 @@ public class Renderer {
      * @param fov neuer FOV Wert
      */
     public void setFOV(int fov){
-        this.FOV = fov;
+        proj.identity().perspective(
+                (float)Math.toRadians(fov),  // FOV
+                (float)width/height,        // Seitenverhältnis
+                0.1f,                       // Nahclipping
+                100f                        // Fernclipping
+        );
     }
 
 

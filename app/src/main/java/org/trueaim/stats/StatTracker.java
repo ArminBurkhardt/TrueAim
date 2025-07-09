@@ -1,4 +1,6 @@
 package org.trueaim.stats;
+import org.trueaim.strahlwerfen.HeatmapValues;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +22,7 @@ public class StatTracker {
     private final List<Long> shotTimes = new ArrayList<>(); // Zeitpunkte der Schüsse
     private long sessionStartTime = System.currentTimeMillis(); // Spielstartzeit
     private boolean enabled = true;
+    private List<HeatmapValues> heatmapValues = new ArrayList<>(); // Liste mit Heatmap Werten
 
     // Ereignisregistrierung
     public void incrementShotsFired() {
@@ -77,5 +80,22 @@ public class StatTracker {
         reloads = 0;
         shotTimes.clear();
         sessionStartTime = System.currentTimeMillis(); // Reset Startzeit
+    }
+
+    public void hadd(HeatmapValues value){
+        if (value != null) {
+            heatmapValues.add(value);
+        }
+    }
+
+    public List<HeatmapValues> getHeatmapValues() {
+        return heatmapValues;
+    }
+
+    //Debgug TODO delete
+    public void fprint(){
+        for (HeatmapValues shot : getHeatmapValues()) {
+            shot.print();
+        }
     }
 }

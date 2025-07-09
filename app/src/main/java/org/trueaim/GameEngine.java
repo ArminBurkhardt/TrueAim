@@ -9,6 +9,8 @@ import org.trueaim.rendering.OverlayRenderer;
 import org.trueaim.rendering.Renderer;
 import org.trueaim.entities.targets.TargetManager;
 import org.trueaim.stats.StatTracker;
+import org.trueaim.strahlwerfen.HeatmapCheck;
+import org.trueaim.strahlwerfen.Raycasting;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -31,6 +33,7 @@ public class GameEngine {
     private GenericWeapon weapon;              // Spielerwaffe
     private boolean showFinalStats = false; // Flag für Statistikanzeige
     private final StatGUI statGUI; // GUI-Panel für Statistiken
+    private final HeatmapCheck heatmapCheck;
 
     public GameEngine(Window window, InputManager inputManager, Camera camera) {
         this.window = window;
@@ -38,8 +41,9 @@ public class GameEngine {
         this.camera = camera;
         this.renderer = new Renderer(window.getWidth(), window.getHeight()); // 3D-Renderer
         this.weapon = new AK47(camera, renderer);  // Waffe erstellen
+        this.heatmapCheck = new HeatmapCheck();
         this.targetManager = new TargetManager();  // Ziele initialisieren
-        this.raycaster = new Raycasting(targetManager, weapon.getStats()); // Trefferprüfung
+        this.raycaster = new Raycasting(targetManager, weapon.getStats(), heatmapCheck); // Trefferprüfung
         this.overlayRenderer = new OverlayRenderer(weapon.getStats(), window); // UI-Renderer
 
 
@@ -79,7 +83,7 @@ public class GameEngine {
         if (weapon.hasAmmo()){
             raycaster.checkHit(camera.getPosition(), camera.getFront()); // Trefferüberprüfung
             weapon.onLeftPress();  // Waffenlogik aktivieren
-            camera.getRotation(); //Debug aufruf TODO delete
+       //     camera.getRotation(); //Debug aufruf TODO delete
         }
     }
 
@@ -156,5 +160,6 @@ public class GameEngine {
         System.out.printf("Reloads: %d\n", stats.getReloads());
         System.out.printf("Schüsse/Minute: %.1f\n", stats.getShotsPerMinute());
         System.out.println("=========================");
+        stats.fprint();//TODO delete
     }
 }
