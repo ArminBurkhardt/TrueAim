@@ -121,6 +121,11 @@ public class InputManager {
             if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT && action == GLFW.GLFW_RELEASE) {
                 rightRealseCallbacks.forEach(Runnable::run);
             }
+            // StatGUI Close -> Mouse Unlock
+            if (!statGUI.isVisible() && showEscMenu) {
+                showEscMenu = false; // Menü formal ausblenden
+                toggleMouseLock(); // Maus entsperren
+            }
 
         });
     }

@@ -7,6 +7,7 @@ import org.trueaim.Utils;
 import org.trueaim.Window;
 
 import java.nio.DoubleBuffer;
+import java.util.Objects;
 
 import static org.lwjgl.glfw.GLFW.glfwGetCursorPos;
 import static org.lwjgl.nanovg.NanoVG.*;
@@ -14,6 +15,14 @@ import static org.lwjgl.nanovg.NanoVG.nvgFill;
 import static org.lwjgl.nanovg.NanoVGGL3.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
+/**
+ * Repräsentiert einen interaktiven Button im GUI.
+ * Der Button kann geklickt (mit Funktionbindings) und angepasst werden.
+ * Er unterstützt benutzerdefinierte Zeichnungen und kann sichtbar oder unsichtbar sein.
+ * Spzialfälle:
+ *      - "TOGGLE" Button für toggleable = true, der zwischen "Enabled" und "Disabled" umschaltet.
+ *      - "Quit" Button: ist rot.
+ */
 public class Button {
     private int x;
     private int y;
@@ -34,6 +43,16 @@ public class Button {
     DoubleBuffer posx, posy; // Position für Mauszeiger
     private Runnable drawInButton = null; // Optionale Funktion für benutzerdefinierte Zeichnung im Button
 
+    /**
+     * Konstruktor für einen Button mit benutzerdefinierter Zeichnung.
+     * @param x X-Position des Buttons
+     * @param y Y-Position des Buttons
+     * @param width Breite des Buttons
+     * @param height Höhe des Buttons
+     * @param label Textlabel des Buttons
+     * @param onClickAction Aktion, die beim Klicken auf den Button ausgeführt wird
+     * @param fontName Name der Schriftart für den Button-Text
+     */
     public Button(int x, int y, int width, int height, String label, Runnable onClickAction, String fontName) {
         this.x = x;
         this.y = y;
@@ -49,6 +68,18 @@ public class Button {
         init();
 
     }
+
+    /**
+     * Konstruktor für einen Button mit benutzerdefinierter Zeichnung.
+     * @param x X-Position des Buttons
+     * @param y Y-Position des Buttons
+     * @param width Breite des Buttons
+     * @param height Höhe des Buttons
+     * @param label Textlabel des Buttons
+     * @param onClickAction Aktion, die beim Klicken auf den Button ausgeführt wird
+     * @param fontName Name der Schriftart für den Button-Text
+     * @param drawInButton Optional: Funktion, die im Button gezeichnet wird (kann null sein)
+     */
     public Button(int x, int y, int width, int height, String label, Runnable onClickAction, String fontName, Runnable drawInButton) {
         this.x = x;
         this.y = y;
@@ -66,6 +97,18 @@ public class Button {
 
     }
 
+    /**
+     * Konstruktor für einen Button, der umschaltbar ist (Togglable).
+     * @param x X-Position des Buttons
+     * @param y Y-Position des Buttons
+     * @param width Breite des Buttons
+     * @param height Höhe des Buttons
+     * @param label Textlabel des Buttons
+     * @param onClickAction Aktion, die beim Klicken auf den Button ausgeführt wird
+     * @param fontName Name der Schriftart für den Button-Text
+     * @param drawInButton Optional: Funktion, die im Button gezeichnet wird (kann null sein)
+     * @param togglable Gibt an, ob der Button umschaltbar ist. Falls true, kann der Button zwischen gedrückt und nicht gedrückt wechseln. Mit label "TOGGLE" kann der Button selbst "Enabled" und "Disabled" setzten.
+     */
     public Button(int x, int y, int width, int height, String label, Runnable onClickAction, String fontName, Runnable drawInButton, boolean togglable) {
         this(x, y, width, height, label, onClickAction, fontName, drawInButton);
         this.togglable = togglable; // Button kann umgeschaltet werden
@@ -133,6 +176,9 @@ public class Button {
     public void onClick() {
         if (onClickAction != null && isHovered && enabled) {
             onClickAction.run();
+            if (togglable) {
+                isPressed = !isPressed; // Toggle-Zustand umschalten
+            }
         }
     }
 
@@ -149,13 +195,36 @@ public class Button {
         isHovered = mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h;
         // glfwSetCursorPos(window.getHandle(), x + w / 2, y + h / 2); // Mauszeiger zentrieren
 
+        int redoffset = 0; // Offset für den Button, falls benötigt
+
+        // Spezieller Offset für bestimmte Buttons
+        if (label.equals("Quit")) {
+            redoffset = 0x70; // Offset für Quit-Button
+        }
+
+        // Font-Größe basierend auf Fenstergröße
+        float fontSize = window.getWidth() / 92.14f;
+
+        // Label setzen
+        String localLabel = label; // Lokales Label für den Button
+
         // Button Hintergrund
-        if (enabled && isPressed) {
-            nvgBoxGradient(vg, x, y + 4, w, h, 4 * 2, 20, rgba(0x20, 0x20, 0x20, 255, colorA), rgba(0x30, 0x30, 0x30, 200, colorB), paint);
+        if (togglable && this.label.equals("TOGGLE")) {
+            // Spzialfall für togglable Buttons
+            localLabel = (isPressed) ? "Enabled" : "Disabled"; // Label anpassen basierend auf gedrückt oder nicht gedrückt, setzt lokales label
+            int colorOffset = (isHovered) ? 0x40 : 0x00; // Offset für die Farbe basierend auf Hover-Zustand
+            if (isPressed) {
+                nvgBoxGradient(vg, x, y + 4, w, h, 4 * 2, 20, rgba(0x20, 0xA0, 0x20 + colorOffset, 255, colorA), rgba(0x30, 0xA8, 0x30 + colorOffset, 200, colorB), paint);
+            } else {
+                nvgBoxGradient(vg, x, y + 4, w, h, 4 * 2, 20, rgba(0x90, 0x20, 0x20 + colorOffset, 255, colorA), rgba(0x80, 0x10, 0x10 + colorOffset, 200, colorB), paint);
+            }
+
+        } else if (enabled && isPressed) {
+            nvgBoxGradient(vg, x, y + 4, w, h, 4 * 2, 20, rgba(0x20 + redoffset, 0x20, 0x20, 255, colorA), rgba(0x30 + redoffset, 0x30, 0x30, 200, colorB), paint);
         } else if (isHovered && enabled) {
             nvgBoxGradient(vg, x, y + 4, w, h, 4 * 2, 20, rgba(0x1a, 0x3b, 0x69, 255, colorA), rgba(0x1a, 0x3b, 0x69, 180, colorB), paint);
         } else if (enabled) {
-            nvgBoxGradient(vg, x, y + 4, w, h, 4 * 2, 20, rgba(0x10, 0x20, 0x30, 255, colorA), rgba(0, 0, 0, 200, colorB), paint);
+            nvgBoxGradient(vg, x, y + 4, w, h, 4 * 2, 20, rgba(0x10 + redoffset, 0x20, 0x30, 255, colorA), rgba(0 + redoffset, 0, 0, 200, colorB), paint);
         } else {
             nvgBoxGradient(vg, x, y + 4, w, h, 4 * 2, 20, rgba(0, 0, 0, 255, colorA), rgba(0, 0, 0, 200, colorB), paint);
         }
@@ -170,11 +239,11 @@ public class Button {
 
         // Button Text
         int color = (enabled) ? 0xff: 0x80; // Textfarbe
-        nvgFontSize(vg, 25.0f);
+        nvgFontSize(vg, fontSize);
         nvgFontFace(vg, FONT_NAME);
         nvgFillColor(vg, rgba(color, color, color, 200, colorC));
         nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
-        nvgText(vg, x + w / 2f, y + h / 2f, label);
+        nvgText(vg, x + w / 2f, y + h / 2f, localLabel);
 
     }
 

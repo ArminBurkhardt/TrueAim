@@ -15,6 +15,7 @@ public abstract class GenericWeapon implements Shootable {
     private int bulletCount;           // Aktuelle Munitionsanzahl
     private boolean active;
     private boolean fullAuto; // Vollautomatischer Modus
+    private boolean hasRecoil = true; // Standard: Waffe hat Rückstoß
 
     @Override
     public abstract void onLeftPress();
@@ -40,4 +41,7 @@ public abstract class GenericWeapon implements Shootable {
     public abstract void setActive(boolean active);
     public abstract boolean isFullAuto();
     public abstract void setFullAuto(boolean fullAuto);
+    public abstract boolean hasRecoil();
+    public abstract void setRecoil(boolean hasRecoil);
+
 }

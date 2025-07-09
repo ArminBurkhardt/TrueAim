@@ -19,20 +19,27 @@ public class StatTracker {
     private int reloads = 0;         // Reloads, ka ob interessant vielleicht entfernen//TODO
     private final List<Long> shotTimes = new ArrayList<>(); // Zeitpunkte der Schüsse
     private long sessionStartTime = System.currentTimeMillis(); // Spielstartzeit
+    private boolean enabled = true;
 
     // Ereignisregistrierung
     public void incrementShotsFired() {
+        if (!enabled) return; // Wenn deaktiviert, nichts tun
         shotsFired++;
         shotTimes.add(System.currentTimeMillis());
     }
     public void registerHit(boolean isHeadshot) {
+        if (!enabled) return; // Wenn deaktiviert, nichts tun
         hits++;
         if(isHeadshot) headshots++;
     }
     public void registerMiss() {
+        if (!enabled) return; // Wenn deaktiviert, nichts tun
         misses++;
     }
-    public void registerReload(){reloads++;}
+    public void registerReload(){
+        if (!enabled) return; // Wenn deaktiviert, nichts tun
+        reloads++;
+    }
 
     // Statistikkalkulation
     public float getAccuracy() {
@@ -42,8 +49,15 @@ public class StatTracker {
         return hits > 0 ? (float) headshots / hits * 100 : 0;
     }
     public float getShotsPerMinute() {
-        long sessionDuration = (System.currentTimeMillis() - sessionStartTime) / 60000;
-        return sessionDuration > 0 ? shotsFired / (float)sessionDuration : 0;
+        float sessionDuration = (System.currentTimeMillis() - sessionStartTime) / 60000f; // Dauer in Minuten
+        if (sessionDuration <= 0) {
+            return 0; // Verhindert Division durch Null
+        } else if (sessionDuration <= 1) {
+            return shotsFired; // Wenn weniger als 1 Minute, einfach Schüsse zurückgeben
+        } else {
+            return shotsFired / sessionDuration; // Schüsse pro Minute
+        }
+        // return sessionDuration > 0 ? shotsFired / (float)sessionDuration : 0;
     }
 
     // Zugriffsmethoden
@@ -52,4 +66,16 @@ public class StatTracker {
     public int getMisses() { return misses; }
     public int getHeadshots() { return headshots; }
     public int getReloads() { return reloads;}
+    public boolean isEnabled() { return enabled; }
+    public void setEnabled(boolean enabled) { this.enabled = enabled; }
+
+    public void resetStats() {
+        shotsFired = 0;
+        hits = 0;
+        misses = 0;
+        headshots = 0;
+        reloads = 0;
+        shotTimes.clear();
+        sessionStartTime = System.currentTimeMillis(); // Reset Startzeit
+    }
 }

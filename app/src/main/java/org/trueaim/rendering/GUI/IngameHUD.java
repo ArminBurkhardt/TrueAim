@@ -22,6 +22,12 @@ import static org.lwjgl.nanovg.NanoVG.*;
 import static org.lwjgl.nanovg.NanoVGGL3.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
+/**
+ * Ingame HUD für das Spiel.
+ * Zeigt wichtige Informationen wie Waffendetails, Statistiken und Fadenkreuz an.
+ * Unterstützt verschiedene Anzeigeeinstellungen und kann angepasst werden.
+ */
+
 public class IngameHUD {
     private long vg;
     private ByteBuffer fontBuffer;
@@ -103,6 +109,24 @@ public class IngameHUD {
         }
     }
 
+
+    private void drawHitmarker(Window window) {
+        // Position des Hitmarkers
+        int x = (int) window.getWidth() / 2;
+        int y = (int) window.getHeight() / 2;
+
+        // Hitmarker zeichnen
+        nvgBeginPath(vg);
+        nvgStrokeWidth(vg, 2.0f);
+        nvgMoveTo(vg, x - 10, y);
+        nvgLineTo(vg, x + 10, y);
+        nvgMoveTo(vg, x, y - 10);
+        nvgLineTo(vg, x, y + 10);
+        nvgStrokeColor(vg, rgba(0xff, 0xff, 0xff, 200, colour));
+        nvgStroke(vg);
+        nvgClosePath(vg);
+    }
+
     private void drawStats(Window window, OverlaySetting orientation) {
         // Setzt die Position für die Statistiken
         int offset = window.getWidth() / 30;
@@ -110,6 +134,7 @@ public class IngameHUD {
         int y = 0;
         int w = window.getWidth() / 8;
         int h = window.getHeight() / 4;
+        float fontSize = window.getWidth() / 102f; // Schriftgröße für den Text
         switch (orientation) {
             case TOP_LEFT -> {
                 x = offset; // x-Position
@@ -137,7 +162,7 @@ public class IngameHUD {
 
 
         // FPS Text
-        nvgFontSize(vg, 16.0f);
+        nvgFontSize(vg, fontSize*0.66f);
         nvgFillColor(vg, rgba(0x80, 0x80, 0x80, 140, colour));
         nvgFontFace(vg, FONT_NAME);
         nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
@@ -146,24 +171,24 @@ public class IngameHUD {
 
 
 
-        int dist = 32; // Abstand zwischen den Textzeilen
+        float dist = fontSize*1.7f; // Abstand zwischen den Textzeilen
         x += 4; // Padding für den Text
         y += 4; // Padding für den Text
 
         // WIP
-        nvgFontSize(vg, 25.0f);
+        nvgFontSize(vg, fontSize);
         nvgFillColor(vg, rgba(0xff, 0x30, 0x30, 200, colour));
         nvgText(vg, x, y, "Work in Progress");
 
         // Statistiken zeichnen
         int color = 0xff; // Textfarbe
-        nvgFontSize(vg, 25.0f);
+        nvgFontSize(vg, fontSize);
         nvgFillColor(vg, rgba(color, color, color, 200, colour));
         nvgFontFace(vg, FONT_NAME);
         nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
 
         nvgText(vg, x, y + dist,
-                String.format("Accuracy: %.2f%%", statTracker.getAccuracy()));
+                String.format("Accuracy: %.2f%%", Math.min(100f, statTracker.getAccuracy()))); // Uhh idk
         nvgText(vg, x, y + 2*dist,
                 String.format("Headshot Rate: %.2f%%", statTracker.getHeadshotRate()));
         nvgText(vg, x, y + 3*dist,
@@ -172,6 +197,10 @@ public class IngameHUD {
                 String.format("Hits: %s", statTracker.getHits()));
 
 
+
+    }
+
+    public void drawFiringModeInfo(Window window) {
 
     }
 
@@ -248,9 +277,9 @@ public class IngameHUD {
 
     public void drawCrosshair(Window window) {
         switch (crosshair) {
-            case PLUS -> crosshairManager.drawPreset1(vg, window.getWidth() / 2, window.getHeight() / 2, 20, 0xff);
+            case PLUS -> crosshairManager.drawPreset1(vg, window.getWidth() / 2, window.getHeight() / 2, window.getWidth() / 96, 0xff);
             case DOT -> crosshairManager.drawPreset2(vg, window.getWidth() / 2, window.getHeight() / 2, 2, 0xff);
-            case SMALL_PLUS -> crosshairManager.drawPreset3(vg, window.getWidth() / 2, window.getHeight() / 2, 15, 0xff);
+            case SMALL_PLUS -> crosshairManager.drawPreset3(vg, window.getWidth() / 2, window.getHeight() / 2, window.getWidth() / 128, 0xff);
         }
     }
 

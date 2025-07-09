@@ -103,6 +103,7 @@ public class GameEngine {
             if (statGUI.isVisible() && weapon.isActive()) {
                 weapon.setActive(false); // Waffe deaktivieren, wenn Statistik-UI sichtbar ist
             } else if (!statGUI.isVisible() && !weapon.isActive()) {
+                weapon.setRecoil(statGUI.getGunHasRecoil()); // Waffenstatus basierend auf Recoil-Einstellung der Statistik-UI setzen
                 weapon.setActive(true); // Waffe aktivieren, wenn Statistik-UI nicht sichtbar ist
             }
 

@@ -5,6 +5,12 @@ import org.lwjgl.nanovg.NVGColor;
 import static org.lwjgl.nanovg.NanoVG.*;
 import static org.lwjgl.system.MemoryUtil.memAllocInt;
 
+
+/**
+ * Verwalter für das Fadenkreuz im Spiel.
+ * Bietet verschiedene vordefinierte Fadenkreuz-Designs und zeichnet sie auf dem Bildschirm.
+ */
+
 public class CrosshairManager {
     NVGColor col;
     public CrosshairManager() {

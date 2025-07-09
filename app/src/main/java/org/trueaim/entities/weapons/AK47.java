@@ -19,6 +19,7 @@ public class AK47 extends GenericWeapon {
     private boolean active = true;      // Aktiviert/Deaktiviert Schießen
     private boolean fullAuto = true;    // Vollautomatischer Modus
                                         // TODO: später vllt Single Shot Modus hinzufügen oder andere Waffe mit Single Shot Modus hinzufügen
+    private boolean hasRecoil = true; // Standard: Waffe hat Rückstoß
 
     public AK47(Camera camera, Renderer renderer) {
         this.camera = camera;
@@ -37,6 +38,7 @@ public class AK47 extends GenericWeapon {
     @Override
     public void setActive(boolean active) {
         this.active = active;
+        this.stats.setEnabled(active);
     }
 
     @Override
@@ -46,6 +48,15 @@ public class AK47 extends GenericWeapon {
     @Override
     public void setFullAuto(boolean fullAuto) {
         this.fullAuto = fullAuto;
+    }
+
+    @Override
+    public boolean hasRecoil() {
+        return hasRecoil;
+    }
+    @Override
+    public void setRecoil(boolean hasRecoil) {
+        this.hasRecoil = hasRecoil; // Rückstoß kann deaktiviert werden
     }
 
     /**
@@ -79,7 +90,9 @@ public class AK47 extends GenericWeapon {
         if (!active) {
             return; // Waffe ist deaktiviert
         }
-        applyRecoil();        // Rückstoß anwenden
+        if (hasRecoil) {
+            applyRecoil();        // Rückstoß anwenden
+        }
         bulletCount--;              // Munition verringern
         stats.incrementShotsFired(); // Statistik aktualisieren
         consecutiveShots++;   // Schusszähler erhöhen
