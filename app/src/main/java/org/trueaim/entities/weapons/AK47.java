@@ -20,6 +20,8 @@ public class AK47 extends GenericWeapon {
     private boolean fullAuto = true;    // Vollautomatischer Modus
                                         // TODO: später vllt Single Shot Modus hinzufügen oder andere Waffe mit Single Shot Modus hinzufügen
     private boolean hasRecoil = true; // Standard: Waffe hat Rückstoß
+    private boolean pressed = false; // Flag für gedrückte Taste
+    private int RPM = 600; // Schüsse pro Minute (Standard für AK-47), nur relevant im Vollautomatikmodus
 
     public AK47(Camera camera, Renderer renderer) {
         this.camera = camera;
@@ -59,6 +61,17 @@ public class AK47 extends GenericWeapon {
         this.hasRecoil = hasRecoil; // Rückstoß kann deaktiviert werden
     }
 
+    @Override
+    public void onRightRelease() {
+        pressed = false; // Taste losgelassen
+        renderer.setFOV(60); // FOV zurücksetzen
+    }
+
+    @Override
+    public void onLeftRelease() {
+        pressed = false; // Taste losgelassen
+    }
+
     /**
      * Überprüft ob Munition in der Waffe ist
      */
@@ -90,6 +103,10 @@ public class AK47 extends GenericWeapon {
         if (!active) {
             return; // Waffe ist deaktiviert
         }
+        pressed = true;
+        if (!allowedToShoot()) {
+            return; // Nicht genug Zeit seit dem letzten Schuss
+        }
         if (hasRecoil) {
             applyRecoil();        // Rückstoß anwenden
         }
@@ -97,6 +114,25 @@ public class AK47 extends GenericWeapon {
         stats.incrementShotsFired(); // Statistik aktualisieren
         consecutiveShots++;   // Schusszähler erhöhen
         lastShotTime = System.currentTimeMillis(); // Zeit speichern
+    }
+
+    @Override
+    public boolean allowedToShoot() {
+        // Berechnet die Zeit seit dem letzten Schuss
+        long currentTime = System.currentTimeMillis();
+        long timeSinceLastShot = currentTime - lastShotTime;
+
+        // Berechnet die minimale Zeit zwischen Schüssen (in Millisekunden)
+        long minTimeBetweenShots = 60000 / RPM; // RPM in RPS umrechnen
+
+        // Prüft, ob genug Zeit seit dem letzten Schuss vergangen ist
+        return timeSinceLastShot >= minTimeBetweenShots;
+    }
+
+    @Override
+    public boolean wantsToShoot() {
+        // Prüft, ob die linke Maustaste gedrückt ist und die Waffe aktiv ist
+        return pressed && active;
     }
 
     /**

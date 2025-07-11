@@ -52,6 +52,8 @@ public class GameEngine {
         inputManager.addLeftClickCallback(this::handleShoot);  // Linksklick: Schießen
         inputManager.addRightClickCallback(weapon::onRightPress); // Rechtsklick: Zielfernrohr
         inputManager.addRkeyCallback(weapon::Reload);      //R-Taste: Nachladen
+        inputManager.addLeftReleaseCallback(weapon::onLeftRelease); // Linke Maustaste loslassen: Waffe abfeuern
+        inputManager.addRightReleaseCallback(weapon::onRightRelease); // Rechte Maustaste loslassen: Zielfernrohr deaktivieren
 
         inputManager.bindSetWeaponCallbacks(this::setWeaponAK47, this::setWeaponV9S); // Waffenwechsel-Callbacks
 
@@ -76,6 +78,8 @@ public class GameEngine {
         weapon.setActive(this.weapon.isActive()); // Setzt den Aktivierungsstatus der neuen Waffe
         inputManager.addRightClickCallback(weapon::onRightPress); // Rechtsklick: Zielfernrohr
         inputManager.addRkeyCallback(weapon::Reload);      //R-Taste: Nachladen
+        inputManager.addLeftReleaseCallback(weapon::onLeftRelease); // Linke Maustaste loslassen: Waffe abfeuern
+        inputManager.addRightReleaseCallback(weapon::onRightRelease); // Rechte Maustaste loslassen: Zielfernrohr deaktivieren
         this.weapon = weapon; // Setzt die Statistiken der neuen Waffe
         this.overlayRenderer.getIngameHUD().setEquippedWeapon(weapon); // Aktualisiert die HUD-Waffe
         // this.statGUI.setStatTracker(tracker); // Aktualisiert die Statistik-UI
@@ -97,6 +101,12 @@ public class GameEngine {
         }
     }
 
+    private void continueHandleShoot() {
+        if (weapon.hasAmmo() && weapon.isFullAuto() && weapon.allowedToShoot() && weapon.wantsToShoot()) {
+            handleShoot();
+        }
+    }
+
     /**
      * Hauptspielschleife.
      * Führt pro Frame aus:
@@ -112,6 +122,7 @@ public class GameEngine {
             // Spielzustand aktualisieren
             inputManager.update(deltaTime);   // Eingaben verarbeiten
             targetManager.update(deltaTime);  // Ziele aktualisieren
+            continueHandleShoot(); // Fortlaufendes Schießen bei Vollautomatik
 
             // Waffe deaktivieren, falls im Menü
             if (statGUI.isVisible() && weapon.isActive()) {

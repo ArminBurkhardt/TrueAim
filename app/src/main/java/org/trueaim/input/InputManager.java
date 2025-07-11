@@ -193,4 +193,10 @@ public class InputManager {
         return sensitivity;
     }
 
+    public void addLeftReleaseCallback(Runnable callback) {
+        leftReleaseCallbacks.add(callback);
+    }
+    public void addRightReleaseCallback(Runnable callback) {
+        rightRealseCallbacks.add(callback);
+    }
 }

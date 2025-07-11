@@ -27,6 +27,9 @@ public abstract class GenericWeapon implements Shootable {
         System.out.println("ADS activated");
     }
 
+    public void onRightRelease() {}
+    public void onLeftRelease() {}
+
     public abstract boolean hasAmmo();
 
     // Zugriffsmethoden
@@ -45,5 +48,7 @@ public abstract class GenericWeapon implements Shootable {
     public abstract boolean hasRecoil();
     public abstract void setRecoil(boolean hasRecoil);
     public abstract Vector2f getRecoil(); // Getter für Rückstoß
+    public abstract boolean allowedToShoot();
+    public abstract boolean wantsToShoot();
 
 }

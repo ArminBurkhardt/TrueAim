@@ -126,4 +126,17 @@ public class V9S extends GenericWeapon {
             renderer.setFOV(40);
         }
     }
+
+    @Override
+    public boolean allowedToShoot() {
+        // Keine RPM, kein Full Auto Modus => darf immer schießen
+        return true;
+    }
+
+    @Override
+    public boolean wantsToShoot() {
+        // Prüft, ob die linke Maustaste gedrückt ist und die Waffe aktiv ist
+        return active; // Nur schießen, wenn Munition vorhanden
+    }
+
 }
