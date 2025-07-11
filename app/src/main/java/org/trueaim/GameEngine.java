@@ -2,6 +2,7 @@ package org.trueaim;
 
 import org.trueaim.entities.targets.Target;
 import org.trueaim.entities.weapons.AK47;
+import org.trueaim.entities.weapons.V9S;
 import org.trueaim.entities.weapons.GenericWeapon;
 import org.trueaim.input.InputManager;
 import org.trueaim.rendering.GUI.StatGUI;
@@ -52,9 +53,11 @@ public class GameEngine {
         inputManager.addRightClickCallback(weapon::onRightPress); // Rechtsklick: Zielfernrohr
         inputManager.addRkeyCallback(weapon::Reload);      //R-Taste: Nachladen
 
+        inputManager.bindSetWeaponCallbacks(this::setWeaponAK47, this::setWeaponV9S); // Waffenwechsel-Callbacks
+
         overlayRenderer.getIngameHUD().setEquippedWeapon(weapon);
 
-        this.statGUI = new StatGUI(window, weapon.getStats(), overlayRenderer, targetManager); // Statistik-UI initialisieren
+        this.statGUI = new StatGUI(window, weapon.getStats(), overlayRenderer, targetManager, inputManager, renderer); // Statistik-UI initialisieren
         inputManager.setStatGUI(statGUI); // Eingabemanager mit Statistik-UI verbinden
 
     }
@@ -64,8 +67,15 @@ public class GameEngine {
     }
 
     public void setWeapon(GenericWeapon weapon) {
+        if (this.weapon.getClass().equals(weapon.getClass())) {
+            return; // Keine Änderung, wenn die Waffe bereits aktiv ist
+        }
         StatTracker tracker = getStatTracker();
         weapon.setStats(tracker); // Überträgt die Statistiken der aktuellen Waffe auf die neue Waffe
+        weapon.setRecoil(this.weapon.hasRecoil()); // Setzt den Rückstoßstatus der neuen Waffe
+        weapon.setActive(this.weapon.isActive()); // Setzt den Aktivierungsstatus der neuen Waffe
+        inputManager.addRightClickCallback(weapon::onRightPress); // Rechtsklick: Zielfernrohr
+        inputManager.addRkeyCallback(weapon::Reload);      //R-Taste: Nachladen
         this.weapon = weapon; // Setzt die Statistiken der neuen Waffe
         this.overlayRenderer.getIngameHUD().setEquippedWeapon(weapon); // Aktualisiert die HUD-Waffe
         // this.statGUI.setStatTracker(tracker); // Aktualisiert die Statistik-UI
@@ -143,6 +153,14 @@ public class GameEngine {
             if (!target.isHit()) return false;
         }
         return true;
+    }
+
+    public void setWeaponAK47() {
+        setWeapon(new AK47(camera, renderer)); // Setzt die Waffe auf AK47
+    }
+
+    public void setWeaponV9S() {
+        setWeapon(new V9S(camera, renderer)); // Setzt die Waffe auf V9S
     }
 
     /**

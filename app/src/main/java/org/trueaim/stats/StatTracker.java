@@ -80,9 +80,11 @@ public class StatTracker {
         reloads = 0;
         shotTimes.clear();
         sessionStartTime = System.currentTimeMillis(); // Reset Startzeit
+        heatmapValues.clear(); // Heatmap-Werte zurücksetzen
     }
 
     public void hadd(HeatmapValues value){
+        if (!enabled) return; // Wenn deaktiviert, nichts tun
         if (value != null) {
             heatmapValues.add(value);
         }

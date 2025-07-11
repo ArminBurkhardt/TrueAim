@@ -2,25 +2,26 @@ package org.trueaim.rendering.GUI;
 
 // https://github.com/lwjglgamedev/lwjglbook-leg/blob/master/chapter24/src/main/java/org/lwjglb/game/Hud.java
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.nanovg.NVGColor;
+import org.lwjgl.nanovg.NVGPaint;
 import org.lwjgl.system.MemoryUtil;
 import org.trueaim.Utils;
 import org.trueaim.Window;
 import org.trueaim.entities.weapons.GenericWeapon;
-import org.trueaim.rendering.OverlayRenderer;
 import org.trueaim.stats.StatTracker;
 
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 
-import static org.lwjgl.BufferUtils.createByteBuffer;
-import static org.lwjgl.glfw.GLFW.glfwGetCursorPos;
 import static org.lwjgl.nanovg.NanoVG.*;
 import static org.lwjgl.nanovg.NanoVGGL3.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
+import static org.trueaim.Utils.rgba;
 
 /**
  * Ingame HUD für das Spiel.
@@ -41,6 +42,8 @@ public class IngameHUD {
     private double fps = 0; // Berechnete FPS
     private Crosshairs crosshair;
     private CrosshairManager crosshairManager;
+    private ArrayList<NVGPaint> paints = new ArrayList<>(); // Liste von NVGPaints
+    private HashMap<String, ByteBuffer> images = new HashMap<>(); // Map für Bilder
 
     public IngameHUD(Window window, StatTracker statTracker) {
         try {this.init(window);
@@ -67,6 +70,7 @@ public class IngameHUD {
             throw new Exception("Could not init nanovg");
         }
 
+        // Font laden
         fontBuffer = Utils.ioResourceToByteBuffer("/fonts/OpenSans-Bold.ttf", 150 * 1024);
         int font = nvgCreateFontMem(vg, FONT_NAME, fontBuffer, false);
         if (font == -1) {
@@ -77,6 +81,21 @@ public class IngameHUD {
         posx = MemoryUtil.memAllocDouble(1);
         posy = MemoryUtil.memAllocDouble(1);
 
+
+        _loadAssets();
+    }
+
+    private void _loadAssets() {
+        // Bilder laden
+        try {
+            loadImage("/overlay/skins/AK_art.png", "AK47");
+            loadImage("/overlay/skins/V9S_art.png", "V9S");
+            loadImage("/overlay/skins/AK_art_inv.png", "AK47_INVERTED");
+            loadImage("/overlay/skins/V9S_art_inv.png", "V9S_INVERTED");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 
 
@@ -200,7 +219,53 @@ public class IngameHUD {
 
     }
 
-    public void drawFiringModeInfo(Window window) {
+    /**
+     * Zeichnet die aktuell ausgerüstete Waffe in den HUD. TODO vllt auch noch auf den Bildschirm zeichnen
+     * @param window Das Fenster, in dem die Waffe gezeichnet wird.
+     * @param x Die x-Position der Waffe.
+     * @param y Die y-Position der Waffe.
+     */
+    private void drawEquippedGun(Window window, float x, float y) {
+        // Invertiere Bild falls Waffe ausgerüstet ist
+        
+
+        // Bilder laden
+        String weaponName = equippedWeapon.getClass().getSimpleName();
+        ByteBuffer imageBufferAK = (weaponName.equals("AK47")) ? images.get("AK47_INVERTED") : images.get("AK47");
+
+        ByteBuffer imageBufferV9S = (weaponName.equals("V9S")) ? images.get("V9S_INVERTED") : images.get("V9S");
+
+
+        // Berechne die Größe des Bildes
+        float width = window.getWidth() / 24.0f;
+        float height = width;
+        float fontSize = window.getWidth() / 100f; // Schriftgröße für den Text
+        int color = 0xff;
+
+        // Waffe 1 (AK) zeichnen
+        nvgBeginPath(vg);
+        drawImage(window, imageBufferAK, x, y - height, width, height, 0.7f);
+        nvgFontSize(vg, fontSize * 0.99f);
+        nvgFontFace(vg, FONT_NAME);
+        nvgTextAlign(vg, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
+        nvgFillColor(vg, rgba(color, color, color, (int) (255 * 0.7f), colour));
+        nvgText(vg, x + width / 2, y + fontSize / 1.2f,
+                "1");
+        nvgClosePath(vg);
+
+
+        // Waffe 2 (V9S) zeichnen
+        nvgBeginPath(vg);
+        drawImage(window, imageBufferV9S, x + width * 1.5f, y - height, width, height, 0.7f);
+        nvgFontSize(vg, fontSize * 0.99f);
+        nvgFontFace(vg, FONT_NAME);
+        nvgTextAlign(vg, NVG_ALIGN_MIDDLE | NVG_ALIGN_CENTER);
+        nvgFillColor(vg, rgba(color, color, color, (int) (255 * 0.7f), colour));
+        nvgText(vg, x + width * 2f, y + fontSize / 1.2f,
+                "2");
+        nvgClosePath(vg);
+
+
 
     }
 
@@ -209,6 +274,7 @@ public class IngameHUD {
         int offset = window.getWidth() / 14; // Offset for the text
         int x = window.getWidth() - 2*offset;
         int y = window.getHeight() - offset;
+        float fontSize = window.getWidth() / 100f; // Schriftgröße für den Text
         // white background
         nvgBeginPath(vg);
         nvgRoundedRect(vg, x-20, y-15, offset*1.6f, 4, 3.0f);
@@ -218,7 +284,7 @@ public class IngameHUD {
 
         int color = 0xff; // Textfarbe
         if (equippedWeapon != null) {
-            nvgFontSize(vg, 25.0f);
+            nvgFontSize(vg, fontSize);
             nvgFontFace(vg, FONT_NAME);
             nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
             // Textfarbe abhängig von der Munition
@@ -231,9 +297,11 @@ public class IngameHUD {
             nvgFillColor(vg, rgba(color, color, color, 200, colour)); // für max opacity a = 255
             nvgText(vg, x+offset, y-40,
                     equippedWeapon.getClass().getSimpleName());
+
+            drawEquippedGun(window, x, y + offset / 1.7f);
         }
         else {
-            nvgFontSize(vg, 25.0f);
+            nvgFontSize(vg, fontSize);
             nvgFontFace(vg, FONT_NAME);
             nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
             nvgFillColor(vg, rgba(color, color, color, 255, colour));
@@ -313,6 +381,49 @@ public class IngameHUD {
         window.restoreState();
     }
 
+    /**
+     * Lädt ein Bild aus dem angegebenen Pfad und speichert es im images HashMap.
+     * @param imagePath Der Pfad zum Bild.
+     * @param key Der Schlüssel, unter dem das Bild gespeichert wird.
+     * @throws IOException Wenn das Bild nicht geladen werden kann.
+     */
+    private void loadImage(String imagePath, String key) throws IOException {
+        ByteBuffer imageBuffer = Utils.ioResourceToByteBuffer(imagePath, 1024 * 1024);
+        if (imageBuffer == null) {
+            throw new IOException("Could not load image: " + imagePath);
+        }
+        images.put(key, imageBuffer);
+
+    }
+
+    /**
+     * Zeichnet ein Bild aus dem ByteBuffer an der angegebenen Position.
+     * @param window Das Fenster, in dem das Bild gezeichnet wird.
+     * @param imageBuffer Der ByteBuffer, der das Bild enthält.
+     * @param x Die x-Position des Bildes.
+     * @param y Die y-Position des Bildes.
+     * @param width Die Breite des Bildes.
+     * @param height Die Höhe des Bildes.
+     * @param alpha Die Transparenz des Bildes (0.0f - 1.0f).
+     */
+    private void drawImage(Window window, ByteBuffer imageBuffer, float x, float y, float width, float height, float alpha) {
+        // Erstelle ein NVGImage aus dem ByteBuffer
+        int image = nvgCreateImageMem(vg, 0, imageBuffer);
+        if (image == -1) {
+            throw new RuntimeException("Could not retrieve image from buffer");
+        }
+        // Paint für das Bild erstellen
+        NVGPaint paint = NVGPaint.create();
+        paints.add(paint);
+
+        // Zeichne das Bild an der angegebenen Position
+        nvgBeginPath(vg);
+        nvgRect(vg, x, y, width, height);
+        nvgFillPaint(vg, nvgImagePattern(vg, x, y, width, height, 0.0f, image, alpha, paint));
+        nvgFill(vg);
+    }
+
+
     public void setCrosshair(Crosshairs crosshair) {
         this.crosshair = crosshair;
     }
@@ -328,15 +439,6 @@ public class IngameHUD {
             timeSinceLastUpdate = currentTime;
             frameCount = 0;
         }
-    }
-
-    private NVGColor rgba(int r, int g, int b, int a, NVGColor colour) {
-        colour.r(r / 255.0f);
-        colour.g(g / 255.0f);
-        colour.b(b / 255.0f);
-        colour.a(a / 255.0f);
-
-        return colour;
     }
 
     public void cleanup() {

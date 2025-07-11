@@ -9,14 +9,18 @@ import org.lwjgl.system.MemoryUtil;
 import org.trueaim.Utils;
 import org.trueaim.Window;
 import org.trueaim.entities.targets.TargetManager;
+import org.trueaim.input.InputManager;
 import org.trueaim.rendering.OverlayRenderer;
+import org.trueaim.rendering.Renderer;
 import org.trueaim.stats.StatTracker;
+import org.trueaim.strahlwerfen.HeatmapValues;
 
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.trueaim.Utils.rgba;
 import static org.lwjgl.nanovg.NanoVG.*;
 import static org.lwjgl.nanovg.NanoVGGL3.*;
 import static org.lwjgl.nanovg.NanoVGGL3.NVG_STENCIL_STROKES;
@@ -42,8 +46,16 @@ public class StatGUI {
     private CrosshairManager crosshairManager;
     private OverlayRenderer overlayRenderer; // Renderer für Overlay-Elemente, wird verwendet, um das Fadenkreuz zu zeichnen
     private TargetManager targetManager; // Manager für Ziele, wird verwendet, um die Ziele zu ändern
+    private Renderer renderer; // Zum FOV ändern
+    private InputManager inputManager; // Eingabemanager, wird verwendet, um die Sensitivität zu ändern
     private boolean gunHasRecoil = false; // Flag, ob Recoil aktiviert ist (für die Gun-Sektion)
+
     private Button recoilButton; // Button für Recoil, der toggled werden kann
+    private Plot heatmapPlot; // Plot für die Heatmap, wird später aktualisiert
+    private Button sensDecreaseButton; // Button zum Verringern der Sensitivität
+    private Button sensIncreaseButton; // Button zum Erhöhen der Sensitivität
+    private Button fovDecreaseButton; // Button zum Verringern des FOVs
+    private Button fovIncreaseButton; // Button zum Erhöhen des FOVs
 
     private int windowWidth; // Breite des Fensters
     private int windowHeight; // Höhe des Fensters
@@ -60,10 +72,16 @@ public class StatGUI {
     private NVGColor colorA;
     private NVGColor colorB;
     private NVGColor colorC;
+    private NVGColor colorD;
+    private NVGColor colorE;
     private NVGPaint paint;
 
+    // Farben für Treffer und Misses
+    int[] color_on_hit = new int[]{0x10, 0xD0, 0x10, 0xff};
+    int[] color_on_miss = new int[]{0xD0, 0x10, 0x10, 0xff};
 
-    public StatGUI(Window window, StatTracker statTracker, OverlayRenderer overlayRenderer, TargetManager targetManager) {
+
+    public StatGUI(Window window, StatTracker statTracker, OverlayRenderer overlayRenderer, TargetManager targetManager, InputManager inputManager, Renderer renderer) {
         try {
             this.init(window);
             this.initElements(window);
@@ -76,6 +94,8 @@ public class StatGUI {
         this.crosshairManager = new CrosshairManager();
         this.overlayRenderer = overlayRenderer;
         this.targetManager = targetManager;
+        this.renderer = renderer; // Renderer für FOV-Änderungen
+        this.inputManager = inputManager; // Eingabemanager für Sensitivitätsänderungen
     }
 
     // TODO: Vielleicht einen Setter für StatTracker hinzufügen (& in der GameEngine setzen), falls sich die Waffe ändert und das nicht übernommen wird
@@ -95,6 +115,8 @@ public class StatGUI {
         colorA = NVGColor.create();
         colorB = NVGColor.create();
         colorC = NVGColor.create();
+        colorD = NVGColor.create();
+        colorE = NVGColor.create();
         paint = NVGPaint.create();
 
         posx = MemoryUtil.memAllocDouble(1);
@@ -128,7 +150,7 @@ public class StatGUI {
         plots = new ArrayList<Plot>();
 
         // Erzeugt die Buttons und fügt sie der Liste hinzu
-        Button b1 = new Button(windowWidth-offset1 - buttonWidth, offset1*2, buttonWidth, buttonHeight, "Quit", window::forceClose, FONT_NAME); // Quit-Button
+        Button b1 = new Button(windowWidth-offset1 - buttonWidth, offset1*3, buttonWidth, buttonHeight, "Quit", window::forceClose, FONT_NAME); // Quit-Button
         buttons.add(b1);
 
         // Target Sektion
@@ -175,22 +197,27 @@ public class StatGUI {
         // User Sektion
         Button b13 = new Button((int) (buttonWidth * 4.5f + offset1 - buttonWidth * 1f - offset1*2 + offset3), (int) (offset1 + offset2 + buttonHeight * 4.5f + offset2 + offset3), buttonHeight, buttonHeight, "-", this::_decreaseSensitivity, FONT_NAME);
         buttons.add(b13);
+        this.sensDecreaseButton = b13;
         Button b14 = new Button((int) (buttonWidth * 4.5f + offset1 - buttonWidth * 1f - offset1*2 + buttonHeight + offset3*2 + offset2), (int) (offset1 + offset2 + buttonHeight * 4.5f + offset2 + offset3), buttonHeight, buttonHeight, "+", this::_increaseSensitivity, FONT_NAME);
         buttons.add(b14);
+        this.sensIncreaseButton = b14;
 
         Button b15 = new Button((int) (buttonWidth * 4.5f + offset1 - buttonWidth * 1f - offset1*2 + offset3), (int) (offset1 + offset2 + buttonHeight * 4.5f + offset2 + offset3+2 + buttonHeight), buttonHeight, buttonHeight, "-", this::_decreaseFOV, FONT_NAME);
         buttons.add(b15);
+        this.fovDecreaseButton = b15;
         Button b16 = new Button((int) (buttonWidth * 4.5f + offset1 - buttonWidth * 1f - offset1*2 + buttonHeight + offset3*2 + offset2), (int) (offset1 + offset2 + buttonHeight * 4.5f + offset2 + offset3+2 + buttonHeight), buttonHeight, buttonHeight, "+", this::_increaseFOV, FONT_NAME);
         buttons.add(b16);
+        this.fovIncreaseButton = b16;
 
 
         // Plots Sektion
         float[][] placeholderData = new float[][] {{1, 1}, {-1, -1}};
-        int[][] placeholderColors = new int[][] {{0x0, 0x0, 0xff, 0xff}, {0x0, 0xf0, 0x00, 0xff}}; // Beispiel-Daten für die Plots
-        Plot plot1 = new Plot(offset1*2 + buttonWidth + offset2 + offset2, windowHeight / 2 + offset1, buttonWidth * 2, buttonWidth * 2, "Heatmap (am besten ArrayList<float> mit [x error, y error, hit?] pro Element)", placeholderData, "scatter");
-        plot1.setDataSingleRGBA(placeholderColors);
+        // int[][] placeholderColors = new int[][] {{0x0, 0x0, 0xff, 0xff}, {0x0, 0xf0, 0x00, 0xff}}; // Beispiel-Daten für die Plots
+        Plot plot1 = new Plot(offset1*2 + buttonWidth + offset2 + offset2, windowHeight / 2 + offset1, buttonWidth * 2, buttonWidth * 2, "Shot Distribution Map", placeholderData, "scatter");
+        // plot1.setDataSingleRGBA(placeholderColors);
         plot1.setFontSize(windowWidth/122f);
         plots.add(plot1);
+        heatmapPlot = plot1; // Speichert den Heatmap-Plot für späteren Zugriff
 
 
 
@@ -255,27 +282,77 @@ public class StatGUI {
 
     // Methoden für die User-Sektion
     private void _decreaseSensitivity() {
-
+        float sens = _getSensitivity() - 0.01f; // Verringert die Sensitivität um 0.1f
+        inputManager.setSensitivity(sens);
+        if (sens <= 0.02f) {
+            sensDecreaseButton.disable();
+        } else {
+            sensDecreaseButton.enable();
+        }
+        sensIncreaseButton.enable(); // Anderer muss dann wieder aktiviert werden
     }
     private void _increaseSensitivity() {
-
+        float sens = _getSensitivity() + 0.01f; // Erhöht die Sensitivität um 0.1f
+        inputManager.setSensitivity(sens);
+        if (sens >= 1.5f) {
+            sensIncreaseButton.disable();
+        } else {
+            sensIncreaseButton.enable();
+        }
+        sensDecreaseButton.enable(); // Anderer muss dann wieder aktiviert werden
     }
     private void _increaseFOV() {
-
+        renderer.setFOV(_getFOV() + 1); // Erhöht das FOV um 1
+        if (_getFOV() >= 120) {
+            fovIncreaseButton.disable(); // Deaktiviert den Button, wenn FOV 120 erreicht
+        } else {
+            fovIncreaseButton.enable(); // Aktiviert den Button, wenn FOV unter 120 ist
+        }
+        fovDecreaseButton.enable();
     }
     private void _decreaseFOV() {
-
+        renderer.setFOV(_getFOV() - 1); // Verringert das FOV um 1
+        if (_getFOV() <= 30) {
+            fovDecreaseButton.disable(); // Deaktiviert den Button, wenn FOV 30 erreicht
+        } else {
+            fovDecreaseButton.enable(); // Aktiviert den Button, wenn FOV über 30 ist
+        }
+        fovIncreaseButton.enable();
     }
-    // TODO: fill methods
     private int _getFOV() {
-        return 0;
+        return renderer.getFOV();
     }
-    private int _getSensitivity() {
-        return 0;
+    private float _getSensitivity() {
+        return inputManager.getSensitivity();
     }
 
 
+    private void updatePlot() {
+        List<HeatmapValues> heatmapvals = statTracker.getHeatmapValues();
 
+        // Wenn keine Heatmap-Werte vorhanden sind, wird der Plot nicht aktualisiert
+        if (heatmapvals.size() == 0) {
+            heatmapPlot.setData(new float[][]{{0f,0f}}); // Leere Daten setzen
+            heatmapPlot.setDataSingleRGBA(new int[0][0]); // Leere Farben setzen
+            return;
+        }
+
+        float[][] data = new float[heatmapvals.size()][2];
+        int[][] colors = new int[heatmapvals.size()][4]; // Farben für die Punkte (RGBA)
+
+
+        for (int i = 0; i < heatmapvals.size(); i++) {
+            HeatmapValues heatmapval = heatmapvals.get(i);
+            data[i][0] = (float) heatmapval.xOffset; // X-Fehler
+            data[i][1] = (float) heatmapval.yOffset; // Y-Fehler
+            colors[i] = heatmapval.hitStatus ? color_on_hit.clone() : color_on_miss.clone();
+        }
+
+        // Aktualisiert die Daten des Plots
+        heatmapPlot.setData(data);
+        heatmapPlot.setDataSingleRGBA(colors);
+
+    }
 
 
 
@@ -374,7 +451,7 @@ public class StatGUI {
         // aktuelle Sensitivität
         nvgFontSize(vg, fontSize * 0.9f);
         nvgFontFace(vg, FONT_NAME);
-        nvgText(vg, buttonWidth * 4.5f + offset1 - width + offset3*2.5f + buttonHeight, (int) (offset1 + offset2 + buttonHeight * 4.5f + offset2 + offset3*2), String.format("%d", _getSensitivity())); // Aktuelle Sensitivität anzeigen
+        nvgText(vg, buttonWidth * 4.5f + offset1 - width + offset3*2.5f + buttonHeight, (int) (offset1 + offset2 + buttonHeight * 4.5f + offset2 + offset3*2), String.format("%.2f", _getSensitivity())); // Aktuelle Sensitivität anzeigen
 
         // FOV Buttons
         nvgFontSize(vg, fontSize);
@@ -406,12 +483,42 @@ public class StatGUI {
         nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
         nvgText(vg, offset1 + offset3, windowHeight / 2f  + offset3, "Statistics"); // Titel des Abschnitts
 
+        // Informationstext zum Plot
+        nvgBeginPath(vg);
+        nvgStrokeColor(vg, rgba(color_on_hit, colorC));
+        nvgStrokeWidth(vg, 4.0f);
+        nvgCircle(vg, offset1*2 + buttonWidth + offset2*2 + offset3 + buttonWidth * 2, windowHeight / 2f + offset1 + offset3, 1.9f);
+        nvgStroke(vg);
+        nvgClosePath(vg);
+
+        nvgFontSize(vg, fontSize * 0.8f);
+        nvgFillColor(vg, rgba(color, color, color, 190, colour));
+        nvgFontFace(vg, FONT_NAME);
+        nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+        nvgText(vg, offset1*2 + buttonWidth + offset2*2 + offset3 + buttonWidth * 2 + 10, windowHeight / 2f + offset1 + offset3 - 7.5f,
+                "Hit"); // Informationstext zum Plot
+
+        nvgBeginPath(vg);
+        nvgStrokeColor(vg, rgba(color_on_miss, colorD));
+        nvgStrokeWidth(vg, 4.0f);
+        nvgCircle(vg, offset1*2 + buttonWidth + offset2*2 + offset3 + buttonWidth * 2, windowHeight / 2f + offset1 + offset3*2, 1.9f);
+        nvgStroke(vg);
+        nvgClosePath(vg);
+
+        nvgFontSize(vg, fontSize * 0.8f);
+        nvgFillColor(vg, rgba(color, color, color, 190, colour));
+        nvgFontFace(vg, FONT_NAME);
+        nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+        nvgText(vg, offset1*2 + buttonWidth + offset2*2 + offset3 + buttonWidth * 2 + 10, windowHeight / 2f + offset1 + offset3*2 - 7.5f,
+                "Miss"); // Informationstext zum Plot
+
 
         // Statistiken zeichnen
-        int x = offset1*3 + buttonWidth * 3 + offset2 *3 + offset3;
-        int y = windowHeight / 2 + offset2;
+
+        int x = offset1*3 + buttonWidth * 3 + offset2 *3 + offset3*2;
+        int y = windowHeight / 2 + offset2* 2;
         nvgFontSize(vg, fontSize);
-        nvgFillColor(vg, rgba(color, color, color, 200, colour));
+        nvgFillColor(vg, rgba(color, color, color, 255, colour));
         nvgFontFace(vg, FONT_NAME);
         nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
 
@@ -469,6 +576,7 @@ public class StatGUI {
         }
 
         // Alle Plots rendern
+        updatePlot();
         for (Plot plot : plots) {
             plot.render(vg);
         }
@@ -495,14 +603,7 @@ public class StatGUI {
         recoilButton.setPressed(gunHasRecoil); // Aktualisiert den Recoil-Button
     }
 
-    private NVGColor rgba(int r, int g, int b, int a, NVGColor colour) {
-        colour.r(r / 255.0f);
-        colour.g(g / 255.0f);
-        colour.b(b / 255.0f);
-        colour.a(a / 255.0f);
 
-        return colour;
-    }
 
     public void cleanup() {
         nvgDelete(vg);

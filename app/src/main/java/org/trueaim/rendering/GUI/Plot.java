@@ -6,6 +6,7 @@ import org.lwjgl.system.MemoryUtil;
 import java.nio.DoubleBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import static org.trueaim.Utils.rgba;
 
 import static org.lwjgl.nanovg.NanoVG.*;
 import static org.lwjgl.nanovg.NanoVG.nvgClosePath;
@@ -121,7 +122,7 @@ public class Plot {
     }
 
     public void render(long vg) {
-        if (!isVisible) return;
+        if (!isVisible || data == null || data.length == 0) return;
         createColorsForSinglePoints();
 
         // Zeichnet den Hintergrund des Plots
@@ -218,7 +219,9 @@ public class Plot {
             nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
             nvgFillColor(vg, rgba(AxisRGBA, colorC));
             nvgText(vg, x + width - 10, (y + height) - centerY + 10, String.format("%.02f", maxX())); // X-Achsen-Beschriftung
-            // nvgText(vg, x + 10, y + centerY + 10, String.format("%.02f", -maxX())); // X-Achsen-Beschriftung für negative Werte
+            if (hasNegativeDataX()) {
+                nvgText(vg, x + 10, (y + height) - centerY + 10, String.format("%.02f", -maxX())); // X-Achsen-Beschriftung für negative Werte
+            }
             nvgClosePath(vg);
 
             // Y-Achsen-Beschriftung
@@ -228,7 +231,9 @@ public class Plot {
             nvgTextAlign(vg, NVG_ALIGN_CENTER | NVG_ALIGN_MIDDLE);
             nvgFillColor(vg, rgba(AxisRGBA, colorC));
             nvgText(vg, x + centerX - 20, y + 10, String.format("%.02f", maxY())); // Y-Achsen-Beschriftung
-            // nvgText(vg, x + centerX - 10, y + height - 10, String.format("%.02f", -maxY())); // Y-Achsen-Beschriftung für negative Werte
+            if (hasNegativeDataY()) {
+                nvgText(vg, x + centerX - 10, y + height - 10, String.format("%.02f", -maxY())); // Y-Achsen-Beschriftung für negative Werte
+            }
             nvgClosePath(vg);
 
         }
@@ -351,8 +356,8 @@ public class Plot {
     private float maxX() {
         float max = Float.MIN_VALUE;
         for (float[] point : data) {
-            if (point[0] > max) {
-                max = point[0];
+            if (Math.abs(point[0]) > max) {
+                max = Math.abs(point[0]);
             }
         }
         return max;
@@ -361,8 +366,8 @@ public class Plot {
     private float maxY() {
         float max = Float.MIN_VALUE;
         for (float[] point : data) {
-            if (point[1] > max) {
-                max = point[1];
+            if (Math.abs(point[1]) > max) {
+                max = Math.abs(point[1]);
             }
         }
         return max;
@@ -408,24 +413,6 @@ public class Plot {
             point[1] *= scaleY; // Skaliert den Y-Wert
         }
         return result;
-    }
-
-    private NVGColor rgba(int r, int g, int b, int a, NVGColor colour) {
-        colour.r(r / 255.0f);
-        colour.g(g / 255.0f);
-        colour.b(b / 255.0f);
-        colour.a(a / 255.0f);
-
-        return colour;
-    }
-
-    private NVGColor rgba(int[] rgba, NVGColor colour) {
-        colour.r(rgba[0] / 255.0f);
-        colour.g(rgba[1] / 255.0f);
-        colour.b(rgba[2] / 255.0f);
-        colour.a(rgba[3] / 255.0f);
-
-        return colour;
     }
 
     public float[][] copy2dArray(float[][] original) {

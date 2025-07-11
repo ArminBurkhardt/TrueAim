@@ -33,6 +33,8 @@ public class InputManager {
     private final Window window;
     private boolean showEscMenu = false; // Flag für Escape Menü
     private StatGUI statGUI; // GUI-Panel für Statistiken
+    private Runnable setAK47Callback; // Callback zum Setzen der AK47
+    private Runnable setV9SCallback; // Callback zum Setzen der V9S
 
     public InputManager(Window window, Camera camera) {
         this.windowHandle = window.getHandle();
@@ -45,6 +47,11 @@ public class InputManager {
     public void setStatGUI(StatGUI statGUI) {
         this.statGUI = statGUI; // GUI-Panel für Statistiken setzen
         this.leftClickCallbacks.add(statGUI::onClick);
+    }
+
+    public void bindSetWeaponCallbacks(Runnable setAK47Callback, Runnable setV9SCallback) {
+        this.setAK47Callback = setAK47Callback; // Callback zum Setzen der AK47
+        this.setV9SCallback = setV9SCallback; // Callback zum Setzen der V9S
     }
 
 
@@ -78,6 +85,14 @@ public class InputManager {
 
             if (key == GLFW.GLFW_KEY_R && action == GLFW.GLFW_PRESS) {
                 RkeyCallbacks.forEach(Runnable::run);
+            }
+
+            if (key == GLFW.GLFW_KEY_1 && action == GLFW.GLFW_PRESS) {
+                setAK47Callback.run();
+            }
+
+            if (key == GLFW.GLFW_KEY_2 && action == GLFW.GLFW_PRESS) {
+                setV9SCallback.run();
             }
 
 
@@ -168,4 +183,14 @@ public class InputManager {
     public void addRkeyCallback(Runnable callback) {
         RkeyCallbacks.add(callback);
     }
+
+
+    // Sensitivity
+    public void setSensitivity(float sensitivity) {
+        this.sensitivity = sensitivity;
+    }
+    public float getSensitivity() {
+        return sensitivity;
+    }
+
 }

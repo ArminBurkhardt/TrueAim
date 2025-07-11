@@ -3,17 +3,14 @@ package org.trueaim.rendering.GUI;
 import org.lwjgl.nanovg.NVGColor;
 import org.lwjgl.nanovg.NVGPaint;
 import org.lwjgl.system.MemoryUtil;
-import org.trueaim.Utils;
 import org.trueaim.Window;
 
 import java.nio.DoubleBuffer;
-import java.util.Objects;
 
 import static org.lwjgl.glfw.GLFW.glfwGetCursorPos;
 import static org.lwjgl.nanovg.NanoVG.*;
 import static org.lwjgl.nanovg.NanoVG.nvgFill;
-import static org.lwjgl.nanovg.NanoVGGL3.*;
-import static org.lwjgl.system.MemoryUtil.NULL;
+import static org.trueaim.Utils.rgba;
 
 /**
  * Repräsentiert einen interaktiven Button im GUI.
@@ -247,13 +244,5 @@ public class Button {
 
     }
 
-    private NVGColor rgba(int r, int g, int b, int a, NVGColor colour) {
-        colour.r(r / 255.0f);
-        colour.g(g / 255.0f);
-        colour.b(b / 255.0f);
-        colour.a(a / 255.0f);
-
-        return colour;
-    }
 
 }

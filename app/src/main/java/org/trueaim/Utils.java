@@ -3,6 +3,7 @@ package org.trueaim;
 // credit to https://github.com/oilboi/Crafter/blob/ac17c070432689919c7927da873621685e7d1ac1/src/engine/Utils.java
 
 import org.lwjgl.BufferUtils;
+import org.lwjgl.nanovg.NVGColor;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -97,6 +98,26 @@ public class Utils {
         buffer.flip();
         newBuffer.put(buffer);
         return newBuffer;
+    }
+
+    // NVG Utils
+
+    public static NVGColor rgba(int r, int g, int b, int a, NVGColor colour) {
+        colour.r(r / 255.0f);
+        colour.g(g / 255.0f);
+        colour.b(b / 255.0f);
+        colour.a(a / 255.0f);
+
+        return colour;
+    }
+
+    public static NVGColor rgba(int[] rgba, NVGColor colour) {
+        colour.r(rgba[0] / 255.0f);
+        colour.g(rgba[1] / 255.0f);
+        colour.b(rgba[2] / 255.0f);
+        colour.a(rgba[3] / 255.0f);
+
+        return colour;
     }
 
 

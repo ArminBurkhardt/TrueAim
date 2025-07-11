@@ -43,6 +43,15 @@ public class Renderer {
                 0.1f,                       // Nahclipping
                 100f                        // Fernclipping
         );
+        this.FOV = fov;  // FOV aktualisieren
+    }
+
+    /**
+     * Gibt den aktuellen FOV Wert zurück
+     * @return aktueller FOV Wert
+     */
+    public int getFOV() {
+        return FOV;
     }
 
 
