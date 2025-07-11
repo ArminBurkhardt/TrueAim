@@ -2,6 +2,7 @@ package org.trueaim.rendering.GUI;
 
 import org.lwjgl.nanovg.NVGColor;
 
+import static org.trueaim.Utils.*;
 import static org.lwjgl.nanovg.NanoVG.*;
 import static org.lwjgl.system.MemoryUtil.memAllocInt;
 
@@ -64,14 +65,4 @@ public class CrosshairManager {
         nvgClosePath(vg);
     }
 
-
-
-    private NVGColor rgba(int r, int g, int b, int a, NVGColor colour) {
-        colour.r(r / 255.0f);
-        colour.g(g / 255.0f);
-        colour.b(b / 255.0f);
-        colour.a(a / 255.0f);
-
-        return colour;
-    }
 }

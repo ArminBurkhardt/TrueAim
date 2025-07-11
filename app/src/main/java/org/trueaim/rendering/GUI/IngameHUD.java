@@ -2,6 +2,7 @@ package org.trueaim.rendering.GUI;
 
 // https://github.com/lwjglgamedev/lwjglbook-leg/blob/master/chapter24/src/main/java/org/lwjglb/game/Hud.java
 
+import org.joml.Vector2f;
 import org.lwjgl.nanovg.NVGColor;
 import org.lwjgl.nanovg.NVGPaint;
 import org.lwjgl.system.MemoryUtil;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
+import static org.lwjgl.glfw.GLFW.glfwGetCursorPos;
 import static org.lwjgl.nanovg.NanoVG.*;
 import static org.lwjgl.nanovg.NanoVGGL3.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
@@ -34,7 +36,7 @@ public class IngameHUD {
     private ByteBuffer fontBuffer;
     private NVGColor colour;
     private static final String FONT_NAME = "OpenSans-Bold"; // ByteBuffer FONT_NAME = BufferUtils.createByteBuffer(64).put("OpenSans-Bold".getBytes()).flip();
-    private DoubleBuffer posx, posy; // Position für Textanzeige
+    private DoubleBuffer posx, posy; // Mausposition in DoubleBuffer für NanoVG
     private GenericWeapon equippedWeapon = null; // Aktuell ausgerüstete Waffe
     private StatTracker statTracker;
     private long timeSinceLastUpdate = System.nanoTime(); // Zeit seit der letzten Aktualisierung in Nanosekunden
@@ -44,6 +46,9 @@ public class IngameHUD {
     private CrosshairManager crosshairManager;
     private ArrayList<NVGPaint> paints = new ArrayList<>(); // Liste von NVGPaints
     private HashMap<String, ByteBuffer> images = new HashMap<>(); // Map für Bilder
+    private String drawWeaponOverlayMode = "OFF"; // Overlay-Modus für Waffe ("OFF": Aus, "SIMPLE": Zeichnung (hehe), "FULL": Ingame Aufnahme)
+    private double mouseX, mouseY;
+    private double dx, dy; // Mausbewegung Differenz => für Moving Average
 
     public IngameHUD(Window window, StatTracker statTracker) {
         try {this.init(window);
@@ -55,6 +60,10 @@ public class IngameHUD {
         this.statTracker = statTracker;
         this.crosshair = Crosshairs.DEFAULT;
         this.crosshairManager = new CrosshairManager();
+        this.mouseX = Double.NaN;
+        this.mouseY = Double.NaN;
+        this.dx = 0.0;
+        this.dy = 0.0;
     }
 
     public void setEquippedWeapon(GenericWeapon weapon) {
@@ -92,6 +101,7 @@ public class IngameHUD {
             loadImage("/overlay/skins/V9S_art.png", "V9S");
             loadImage("/overlay/skins/AK_art_inv.png", "AK47_INVERTED");
             loadImage("/overlay/skins/V9S_art_inv.png", "V9S_INVERTED");
+            loadImage("/overlay/skins/AK_art_pov.png", "AK_MODEL_OVERLAY");
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
@@ -343,7 +353,7 @@ public class IngameHUD {
         }
     }
 
-    public void drawCrosshair(Window window) {
+    private void drawCrosshair(Window window) {
         switch (crosshair) {
             case PLUS -> crosshairManager.drawPreset1(vg, window.getWidth() / 2, window.getHeight() / 2, window.getWidth() / 96, 0xff);
             case DOT -> crosshairManager.drawPreset2(vg, window.getWidth() / 2, window.getHeight() / 2, 2, 0xff);
@@ -351,11 +361,77 @@ public class IngameHUD {
         }
     }
 
+    // TODO: V9S Model Overlay
+    private void drawWeaponOverlay(Window window) {
+        if (equippedWeapon != null) {
+            ByteBuffer imageBuffer = null;
+            String weaponName = equippedWeapon.getClass().getSimpleName();
+            switch (drawWeaponOverlayMode) {
+                case "OFF" -> {
+                    return; // Overlay ist ausgeschaltet
+                }
+                case "SIMPLE" -> {
+                    imageBuffer = (weaponName.equals("AK47")) ? images.get("AK_MODEL_OVERLAY") : null;
+                }
+                case "FULL" -> {
+                    imageBuffer = (weaponName.equals("AK47")) ? images.get("AKM_INGAME") : null;
+                }
+            }
+
+            if (imageBuffer == null) {
+                return; // Kein Bild gefunden, Overlay nicht zeichnen
+            }
+
+            // Movement der Mausposition auf Waffe übertragen
+            double currentX = posx.get(0) * 1d;
+            double currentY = posy.get(0) * 1d;
+            if (!Double.isNaN(mouseX) && equippedWeapon.isActive()) {
+                dx = mouseX - currentX + dx*2;
+                dy = mouseY - currentY + dy*2;
+                dx /= 3; // Moving Average
+                dy /= 3; // Moving Average
+                dx = trunc(dx, 2); // Truncate to 2 decimal places
+                dy = trunc(dy, 2); // Truncate to 2 decimal places
+            }
+            mouseX = currentX;
+            mouseY = currentY;
+
+            dy = Math.max(-10, dy); // Begrenze die maximale Verschiebung nach oben
+
+            nvgBeginPath(vg);
+            drawImage(window, imageBuffer, (float) -dx, (float) dy + 10, window.getWidth(), window.getHeight(), 1.0f);
+            nvgClosePath(vg);
+        }
+    }
+
+    private double trunc(double value, int decimalPlaces) {
+        double scale = Math.pow(10, decimalPlaces);
+        return Math.floor(value * scale) / scale;
+    }
+
+    public void applyRecoilVector(Vector2f vector) {
+        double recoilX = vector.x * 10;
+        double recoilY = vector.y * 10;
+
+        // Recoil anwenden
+        dx = recoilX + dx;
+        dy = recoilY + dy;
+    }
+
+    private void updateMousePos(Window window) {
+        glfwGetCursorPos(window.getHandle(), posx, posy);
+    }
+
+
     public void render(Window window) {
+        this.render(window, OverlaySetting.TOP_RIGHT);
+        /* TODO REMOVE
         nvgBeginFrame(vg, window.getWidth(), window.getHeight(), 1.0f);
         calculateFPS();
 
         // _drawDeprecated(window);
+
+        updateMousePos(window); // Mausposition aktualisieren
 
         drawStats(window, OverlaySetting.TOP_RIGHT);
         drawWeaponInfo(window);
@@ -364,6 +440,8 @@ public class IngameHUD {
         nvgEndFrame(vg);
 
         window.restoreState();
+
+         */
     }
 
     public void render(Window window, OverlaySetting orientation) {
@@ -371,6 +449,9 @@ public class IngameHUD {
         calculateFPS();
 
         // _drawDeprecated(window);
+
+        updateMousePos(window); // Mausposition aktualisieren
+        drawWeaponOverlay(window);
 
         drawStats(window, orientation);
         drawWeaponInfo(window);

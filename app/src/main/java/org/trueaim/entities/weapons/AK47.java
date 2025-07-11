@@ -113,6 +113,15 @@ public class AK47 extends GenericWeapon {
     }
 
     @Override
+    public Vector2f getRecoil() {
+        // Gibt den aktuellen Rückstoßwert zurück
+        if (!hasRecoil) {
+            return new Vector2f(0, 0); // Kein Rückstoß
+        }
+        return RecoilPattern.getRecoil(consecutiveShots);
+    }
+
+    @Override
     public void onRightPress() {
         super.onRightPress();
         consecutiveShots = 0; // Zielen unterbricht Schusskette

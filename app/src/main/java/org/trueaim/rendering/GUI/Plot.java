@@ -36,6 +36,10 @@ public class Plot {
     private boolean drawLabels = true; // Ob Achsenbeschriftungen gezeichnet werden sollen
     private float fontSize = 20.0f; // Schriftgröße für Achsenbeschriftungen
 
+    private float forcedMaxX = Float.MIN_VALUE; // Optionaler Maximalwert für X-Achse
+    private float forcedMaxY = Float.MIN_VALUE; // Optionaler Maximalwert für Y-Achse
+    private boolean useTrueCenter = false; // Ob das Zentrum der Achsen auf den Nullpunkt gesetzt werden soll
+
     private NVGColor colorA;
     private NVGColor colorB;
     private NVGColor colorC;
@@ -334,6 +338,9 @@ public class Plot {
 
     private boolean hasNegativeDataX() {
         if (data == null || data[0].length == 0) return false;
+        if (useTrueCenter) {
+            return true;
+        }
         for (float[] value : data) {
             if (value[0] < 0) return true; // Überprüfen, ob ein Wert negativ ist
         }
@@ -342,6 +349,9 @@ public class Plot {
 
     private boolean hasNegativeDataY() {
         if (data == null || data[0].length == 0) return false;
+        if (useTrueCenter) {
+            return true;
+        }
         for (float[] value : data) {
             if (value[1] < 0) return true; // Überprüfen, ob ein Wert negativ ist
         }
@@ -354,6 +364,9 @@ public class Plot {
     }
 
     private float maxX() {
+        if (forcedMaxX != Float.MIN_VALUE) {
+            return forcedMaxX; // Gibt den festgelegten Maximalwert zurück, wenn vorhanden
+        }
         float max = Float.MIN_VALUE;
         for (float[] point : data) {
             if (Math.abs(point[0]) > max) {
@@ -364,6 +377,9 @@ public class Plot {
     }
 
     private float maxY() {
+        if (forcedMaxY != Float.MIN_VALUE) {
+            return forcedMaxY; // Gibt den festgelegten Maximalwert zurück, wenn vorhanden
+        }
         float max = Float.MIN_VALUE;
         for (float[] point : data) {
             if (Math.abs(point[1]) > max) {
@@ -381,6 +397,21 @@ public class Plot {
             point[1] *= scaleY; // Skaliert den Y-Wert
         }
         setCenter(); // Aktualisiert das Zentrum nach der Skalierung
+    }
+
+    public void setForcedMaxX(float maxX) {
+        this.forcedMaxX = maxX; // Setzt den festgelegten Maximalwert für X
+        setCenter(); // Aktualisiert das Zentrum nach dem Setzen des Maximalwerts
+    }
+
+    public void setForcedMaxY(float maxY) {
+        this.forcedMaxY = maxY; // Setzt den festgelegten Maximalwert für Y
+        setCenter(); // Aktualisiert das Zentrum nach dem Setzen des Maximalwerts
+    }
+
+    public void setUseTrueCenter(boolean useTrueCenter) {
+        this.useTrueCenter = useTrueCenter; // Setzt, ob das Zentrum der Achsen auf den Nullpunkt gesetzt werden soll
+        setCenter(); // Aktualisiert das Zentrum nach dem Setzen
     }
 
     private float[][] scalePointsForPlotting(float scaleX, float scaleY) {

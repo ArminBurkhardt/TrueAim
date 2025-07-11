@@ -1,5 +1,6 @@
 package org.trueaim.entities.weapons;
 import lombok.Getter;
+import org.joml.Vector2f;
 import org.trueaim.shootable.Shootable;
 import org.trueaim.stats.StatTracker;
 
@@ -43,5 +44,6 @@ public abstract class GenericWeapon implements Shootable {
     public abstract void setFullAuto(boolean fullAuto);
     public abstract boolean hasRecoil();
     public abstract void setRecoil(boolean hasRecoil);
+    public abstract Vector2f getRecoil(); // Getter für Rückstoß
 
 }

@@ -1,6 +1,5 @@
 package org.trueaim.rendering.GUI;
 
-// Nützlich: https://github.com/SpinyOwl/SpinyGUI/blob/develop/demo.simple/src/main/java/com/spinyowl/spinygui/demo/simple/OtherMain.java
 
 
 import org.lwjgl.nanovg.NVGColor;
@@ -49,6 +48,7 @@ public class StatGUI {
     private Renderer renderer; // Zum FOV ändern
     private InputManager inputManager; // Eingabemanager, wird verwendet, um die Sensitivität zu ändern
     private boolean gunHasRecoil = false; // Flag, ob Recoil aktiviert ist (für die Gun-Sektion)
+    private float plotMax = 2f; // Maximaler Wert für die Heatmap-Plot-Achsen
 
     private Button recoilButton; // Button für Recoil, der toggled werden kann
     private Plot heatmapPlot; // Plot für die Heatmap, wird später aktualisiert
@@ -218,7 +218,9 @@ public class StatGUI {
         plot1.setFontSize(windowWidth/122f);
         plots.add(plot1);
         heatmapPlot = plot1; // Speichert den Heatmap-Plot für späteren Zugriff
-
+        plot1.setForcedMaxX(plotMax); // Setzt den maximalen X-Wert für die Heatmap
+        plot1.setForcedMaxY(plotMax); // Setzt den maximalen Y-Wert für die Heatmap
+        plot1.setUseTrueCenter(true);
 
 
 
@@ -343,6 +345,9 @@ public class StatGUI {
 
         for (int i = 0; i < heatmapvals.size(); i++) {
             HeatmapValues heatmapval = heatmapvals.get(i);
+            if (heatmapval == null || heatmapval.xOffset > plotMax || heatmapval.yOffset > plotMax || heatmapval.xOffset < -plotMax || heatmapval.yOffset < -plotMax) {
+                continue; // Überspringt null-Werte
+            }
             data[i][0] = (float) heatmapval.xOffset; // X-Fehler
             data[i][1] = (float) heatmapval.yOffset; // Y-Fehler
             colors[i] = heatmapval.hitStatus ? color_on_hit.clone() : color_on_miss.clone();

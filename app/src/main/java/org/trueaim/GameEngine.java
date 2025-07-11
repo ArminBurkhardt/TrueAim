@@ -93,7 +93,7 @@ public class GameEngine {
         if (weapon.hasAmmo()){
             raycaster.checkHit(camera.getPosition(), camera.getFront()); // Trefferüberprüfung
             weapon.onLeftPress();  // Waffenlogik aktivieren
-       //     camera.getRotation(); //Debug aufruf TODO delete
+            overlayRenderer.getIngameHUD().applyRecoilVector(weapon.getRecoil()); // Recoil auf HUD anwenden
         }
     }
 
