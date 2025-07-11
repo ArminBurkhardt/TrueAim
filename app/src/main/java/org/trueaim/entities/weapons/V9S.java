@@ -3,9 +3,11 @@ import org.joml.Vector2f;
 import org.trueaim.Camera;
 import org.trueaim.rendering.Renderer;
 
+// TODO: REFEACTOR & CLEANUP
+
 /**
- * Spezifische Implementierung der AK-47-Waffe.
- * Erweitert GenericWeapon mit rückstoßbasierter Mechanik.
+ * Spezifische Implementierung der V9S-Waffe.
+ * Erweitert GenericWeapon.
  */
 public class V9S extends GenericWeapon {
     private int consecutiveShots = 0; // Anzahl aufeinanderfolgender Schüsse
@@ -17,6 +19,7 @@ public class V9S extends GenericWeapon {
     private boolean active = true;      // Aktiviert/Deaktiviert Schießen
     private boolean fullAuto = false;    // Single Shot Modus (Standard: Nein, da V9S eine Sniper ist)
     private boolean hasRecoil = true; // Standard: Waffe hat Rückstoß
+    private boolean hasInfiniteAmmo = false; // Standard: Waffe hat keine unendliche Munition
 
     public V9S(Camera camera, Renderer renderer) {
         this.camera = camera;
@@ -70,7 +73,7 @@ public class V9S extends GenericWeapon {
      */
     @Override
     public void Reload(){
-        if (!active) {
+        if (!active || hasInfiniteAmmo) {
             return; // Waffe ist deaktiviert, Nachladen nicht möglich
         }
         bulletCount = ammo; // Setzt die Munition auf das Maximum zurück
@@ -88,7 +91,9 @@ public class V9S extends GenericWeapon {
         if (hasRecoil) {
             applyRecoil();        // Rückstoß anwenden
         }
-        bulletCount--;              // Munition verringern
+        if (!hasInfiniteAmmo) {
+            bulletCount--;              // Munition verringern
+        }
         stats.incrementShotsFired(); // Statistik aktualisieren
         consecutiveShots++;   // Schusszähler erhöhen
         lastShotTime = System.currentTimeMillis(); // Zeit speichern
@@ -125,6 +130,21 @@ public class V9S extends GenericWeapon {
             consecutiveShots = 0; // Zielen unterbricht Schusskette
             renderer.setFOV(40);
         }
+    }
+
+    @Override
+    public void setHasInfiniteAmmo(boolean hasInfiniteAmmo) {
+        this.hasInfiniteAmmo = hasInfiniteAmmo; // Setzt den Status für unendliche Munition
+        if (hasInfiniteAmmo) {
+            bulletCount = Integer.MAX_VALUE; // Setzt die Munitionsanzahl auf unendlich
+        } else {
+            bulletCount = ammo; // Setzt die Munitionsanzahl auf das Maximum zurück
+        }
+    }
+
+    @Override
+    public boolean hasInfiniteAmmo() {
+        return hasInfiniteAmmo; // Gibt den Status für unendliche Munition zurück
     }
 
     @Override

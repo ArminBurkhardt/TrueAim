@@ -17,6 +17,7 @@ public abstract class GenericWeapon implements Shootable {
     private boolean active;
     private boolean fullAuto; // Vollautomatischer Modus
     private boolean hasRecoil = true; // Standard: Waffe hat Rückstoß
+    private boolean hasInfiniteAmmo = false; // Standard: Waffe hat keine unendliche Munition
 
     @Override
     public abstract void onLeftPress();
@@ -50,5 +51,7 @@ public abstract class GenericWeapon implements Shootable {
     public abstract Vector2f getRecoil(); // Getter für Rückstoß
     public abstract boolean allowedToShoot();
     public abstract boolean wantsToShoot();
+    public abstract void setHasInfiniteAmmo(boolean hasInfiniteAmmo);
+    public abstract boolean hasInfiniteAmmo();
 
 }

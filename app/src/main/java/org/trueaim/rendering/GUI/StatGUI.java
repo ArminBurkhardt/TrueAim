@@ -48,6 +48,7 @@ public class StatGUI {
     private Renderer renderer; // Zum FOV ändern
     private InputManager inputManager; // Eingabemanager, wird verwendet, um die Sensitivität zu ändern
     private boolean gunHasRecoil = false; // Flag, ob Recoil aktiviert ist (für die Gun-Sektion)
+    private boolean hasInfiniteAmmo = false; // Flag, ob unendliche Munition aktiviert ist (für die Gun-Sektion)
     private float plotMax = 2f; // Maximaler Wert für die Heatmap-Plot-Achsen
 
     private Button recoilButton; // Button für Recoil, der toggled werden kann
@@ -194,6 +195,11 @@ public class StatGUI {
         buttons.add(b12);
         this.recoilButton = b12; // Speichert den Recoil-Button für späteren Zugriff
 
+        Button b17 = new Button(offset1 + offset3*3 + buttonWidth, (int) (offset1 + offset2 + buttonHeight * 4.5f + offset2 + offset3*2), buttonWidth, buttonHeight, "TOGGLE", this::_infiniteAmmoToggle, FONT_NAME, true);
+        b17.setPressed(false);
+        this.hasInfiniteAmmo = false; // Standardmäßig ist unendliche Munition deaktiviert
+        buttons.add(b17);
+
         // User Sektion
         Button b13 = new Button((int) (buttonWidth * 4.5f + offset1 - buttonWidth * 1f - offset1*2 + offset3), (int) (offset1 + offset2 + buttonHeight * 4.5f + offset2 + offset3), buttonHeight, buttonHeight, "-", this::_decreaseSensitivity, FONT_NAME);
         buttons.add(b13);
@@ -280,6 +286,9 @@ public class StatGUI {
     // Methoden für die Gun-Sektion
     private void _recoilToggle() {
         this.gunHasRecoil = !this.gunHasRecoil; // Toggle für Recoil
+    }
+    private void _infiniteAmmoToggle() {
+        this.hasInfiniteAmmo = !this.hasInfiniteAmmo; // Toggle für unendliche Munition
     }
 
     // Methoden für die User-Sektion
@@ -411,9 +420,9 @@ public class StatGUI {
     // Zeichnet die Gun-Sektion des GUIs (Recoil, etc.)
     private void drawGunSection() {
         // Hintergrund
-        nvgBoxGradient(vg, offset1, offset1 + offset2 + buttonHeight * 4.5f , buttonWidth * 1f + offset1*2, buttonHeight * 2f + offset1, r * 2, f, rgba(0x2a, 0x4b, 0x59, 255, colorA), rgba(0x1a, 0x3b, 0x69, 180, colorB), paint);
+        nvgBoxGradient(vg, offset1, offset1 + offset2 + buttonHeight * 4.5f , buttonWidth * 2f + offset1 + offset3*1f, buttonHeight * 2f + offset1, r * 2, f, rgba(0x2a, 0x4b, 0x59, 255, colorA), rgba(0x1a, 0x3b, 0x69, 180, colorB), paint);
         nvgBeginPath(vg);
-        nvgRoundedRect(vg, offset1, offset1 + offset2 + buttonHeight * 4.5f , buttonWidth * 1f + offset1*2, buttonHeight * 2f + offset1, 10.0f);
+        nvgRoundedRect(vg, offset1, offset1 + offset2 + buttonHeight * 4.5f , buttonWidth * 2f + offset1 + offset3*1f, buttonHeight * 2f + offset1, 10.0f);
         nvgFillPaint(vg, paint);
         nvgFill(vg);
 
@@ -427,6 +436,8 @@ public class StatGUI {
 
 
         nvgText(vg, offset1+ offset3*2, offset1 + offset2 + buttonHeight * 4.5f + offset2 + offset3, "Recoil"); // Titel des Abschnitts
+
+        nvgText(vg, offset1+ buttonWidth + offset3*3, offset1 + offset2 + buttonHeight * 4.5f + offset2 + offset3, "Infinite Ammo"); // Titel des Abschnitts
 
 
     }
@@ -606,6 +617,13 @@ public class StatGUI {
     public void setGunHasRecoil(boolean gunHasRecoil) {
         this.gunHasRecoil = gunHasRecoil; // Setzt den Recoil-Status der Waffe
         recoilButton.setPressed(gunHasRecoil); // Aktualisiert den Recoil-Button
+    }
+
+    public boolean hasInfiniteAmmo() {
+        return hasInfiniteAmmo; // Gibt zurück, ob unendliche Munition aktiviert ist
+    }
+    public void setInfiniteAmmo(boolean hasInfiniteAmmo) {
+        this.hasInfiniteAmmo = hasInfiniteAmmo; // Setzt den Status für unendliche Munition
     }
 
 

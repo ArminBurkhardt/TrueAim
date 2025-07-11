@@ -46,9 +46,13 @@ public class IngameHUD {
     private CrosshairManager crosshairManager;
     private ArrayList<NVGPaint> paints = new ArrayList<>(); // Liste von NVGPaints
     private HashMap<String, ByteBuffer> images = new HashMap<>(); // Map für Bilder
-    private String drawWeaponOverlayMode = "OFF"; // Overlay-Modus für Waffe ("OFF": Aus, "SIMPLE": Zeichnung (hehe), "FULL": Ingame Aufnahme)
+    private String drawWeaponOverlayMode = "SIMPLE"; // Overlay-Modus für Waffe ("OFF": Aus, "SIMPLE": Zeichnung (hehe), "FULL": Ingame Aufnahme)
     private double mouseX, mouseY;
-    private double dx, dy; // Mausbewegung Differenz => für Moving Average
+    private double dx, dy, dr; // Mausbewegung Differenz => für Moving Average
+
+    // Recoil Einstellung
+    private final float RECOIL_SMOOTHING = 1.025f; // Smoothing Faktor für Recoil, => Größer => schnellerer Recoil Abfall
+    private final float RECOIL_SCALING = 600.0f; // Maximale Recoil Verschiebung, => Größer => weniger Recoil
 
     public IngameHUD(Window window, StatTracker statTracker) {
         try {this.init(window);
@@ -64,6 +68,7 @@ public class IngameHUD {
         this.mouseY = Double.NaN;
         this.dx = 0.0;
         this.dy = 0.0;
+        this.dr = 0.0; // Initialisiere dr für Rotation
     }
 
     public void setEquippedWeapon(GenericWeapon weapon) {
@@ -102,6 +107,7 @@ public class IngameHUD {
             loadImage("/overlay/skins/AK_art_inv.png", "AK47_INVERTED");
             loadImage("/overlay/skins/V9S_art_inv.png", "V9S_INVERTED");
             loadImage("/overlay/skins/AK_art_pov.png", "AK_MODEL_OVERLAY");
+            loadImage("/overlay/skins/V9S_art_pov_1.png", "V9S_MODEL_OVERLAY");
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
@@ -230,7 +236,7 @@ public class IngameHUD {
     }
 
     /**
-     * Zeichnet die aktuell ausgerüstete Waffe in den HUD. TODO vllt auch noch auf den Bildschirm zeichnen
+     * Zeichnet die aktuell ausgerüstete Waffe in den HUD.
      * @param window Das Fenster, in dem die Waffe gezeichnet wird.
      * @param x Die x-Position der Waffe.
      * @param y Die y-Position der Waffe.
@@ -300,9 +306,16 @@ public class IngameHUD {
             // Textfarbe abhängig von der Munition
             NVGColor bullet_text_color = ((((float) equippedWeapon.getBulletCount()) / equippedWeapon.getAmmo()) > (1/4f)) ? rgba(color, color, color, 200, colour) : rgba(0xff, 0x30, 0x30, 200, colour);
             nvgFillColor(vg, bullet_text_color);
-            nvgText(vg, x, y-40,
-                    String.format("%02d/%02d",
-                            equippedWeapon.getBulletCount(), equippedWeapon.getAmmo()));
+            if (!equippedWeapon.hasInfiniteAmmo()) {
+                nvgText(vg, x, y-40,
+                        String.format("%02d/%02d",
+                                equippedWeapon.getBulletCount(), equippedWeapon.getAmmo()));
+            } else {
+                nvgText(vg, x, y-40,
+                        String.format("∞/%02d",
+                                equippedWeapon.getAmmo()));
+            }
+
             // Waffennamen
             nvgFillColor(vg, rgba(color, color, color, 200, colour)); // für max opacity a = 255
             nvgText(vg, x+offset, y-40,
@@ -371,7 +384,7 @@ public class IngameHUD {
                     return; // Overlay ist ausgeschaltet
                 }
                 case "SIMPLE" -> {
-                    imageBuffer = (weaponName.equals("AK47")) ? images.get("AK_MODEL_OVERLAY") : null;
+                    imageBuffer = (weaponName.equals("AK47")) ? images.get("AK_MODEL_OVERLAY") : images.get("V9S_MODEL_OVERLAY");
                 }
                 case "FULL" -> {
                     imageBuffer = (weaponName.equals("AK47")) ? images.get("AKM_INGAME") : null;
@@ -390,8 +403,10 @@ public class IngameHUD {
                 dy = mouseY - currentY + dy*2;
                 dx /= 3; // Moving Average
                 dy /= 3; // Moving Average
+                dr /= RECOIL_SMOOTHING; // Moving Average für Rotation
                 dx = trunc(dx, 2); // Truncate to 2 decimal places
                 dy = trunc(dy, 2); // Truncate to 2 decimal places
+                dr = trunc(dr, 3); // Truncate to 3 decimal places
             }
             mouseX = currentX;
             mouseY = currentY;
@@ -399,7 +414,7 @@ public class IngameHUD {
             dy = Math.max(-10, dy); // Begrenze die maximale Verschiebung nach oben
 
             nvgBeginPath(vg);
-            drawImage(window, imageBuffer, (float) -dx, (float) dy + 10, window.getWidth(), window.getHeight(), 1.0f);
+            drawImage(window, imageBuffer, (float) -dx, (float) dy + 10, (float) window.getWidth(), window.getHeight(), 1.0f, (float) -dr);
             nvgClosePath(vg);
         }
     }
@@ -416,6 +431,7 @@ public class IngameHUD {
         // Recoil anwenden
         dx = recoilX + dx;
         dy = recoilY + dy;
+        dr = Math.sqrt(dx * dx + dy * dy) / RECOIL_SCALING; // Berechne die Rotation basierend auf der Verschiebung
     }
 
     private void updateMousePos(Window window) {
@@ -425,23 +441,6 @@ public class IngameHUD {
 
     public void render(Window window) {
         this.render(window, OverlaySetting.TOP_RIGHT);
-        /* TODO REMOVE
-        nvgBeginFrame(vg, window.getWidth(), window.getHeight(), 1.0f);
-        calculateFPS();
-
-        // _drawDeprecated(window);
-
-        updateMousePos(window); // Mausposition aktualisieren
-
-        drawStats(window, OverlaySetting.TOP_RIGHT);
-        drawWeaponInfo(window);
-        drawCrosshair(window);
-
-        nvgEndFrame(vg);
-
-        window.restoreState();
-
-         */
     }
 
     public void render(Window window, OverlaySetting orientation) {
@@ -501,6 +500,24 @@ public class IngameHUD {
         nvgBeginPath(vg);
         nvgRect(vg, x, y, width, height);
         nvgFillPaint(vg, nvgImagePattern(vg, x, y, width, height, 0.0f, image, alpha, paint));
+        nvgFill(vg);
+    }
+
+
+    private void drawImage(Window window, ByteBuffer imageBuffer, float x, float y, float width, float height, float alpha, float rotation) {
+        // Erstelle ein NVGImage aus dem ByteBuffer
+        int image = nvgCreateImageMem(vg, 0, imageBuffer);
+        if (image == -1) {
+            throw new RuntimeException("Could not retrieve image from buffer");
+        }
+        // Paint für das Bild erstellen
+        NVGPaint paint = NVGPaint.create();
+        paints.add(paint);
+
+        // Zeichne das Bild an der angegebenen Position
+        nvgBeginPath(vg);
+        nvgRect(vg, x, y, width, height);
+        nvgFillPaint(vg, nvgImagePattern(vg, x, y, width, height, rotation, image, alpha, paint));
         nvgFill(vg);
     }
 

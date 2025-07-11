@@ -22,6 +22,7 @@ public class AK47 extends GenericWeapon {
     private boolean hasRecoil = true; // Standard: Waffe hat Rückstoß
     private boolean pressed = false; // Flag für gedrückte Taste
     private int RPM = 600; // Schüsse pro Minute (Standard für AK-47), nur relevant im Vollautomatikmodus
+    private boolean hasInfiniteAmmo = false; // Standard: Waffe hat keine unendliche Munition
 
     public AK47(Camera camera, Renderer renderer) {
         this.camera = camera;
@@ -86,7 +87,7 @@ public class AK47 extends GenericWeapon {
      */
     @Override
     public void Reload(){
-        if (!active) {
+        if (!active || hasInfiniteAmmo) {
             return; // Waffe ist deaktiviert, Nachladen nicht möglich
         }
         bulletCount = ammo; // Setzt die Munition auf das Maximum zurück
@@ -110,7 +111,9 @@ public class AK47 extends GenericWeapon {
         if (hasRecoil) {
             applyRecoil();        // Rückstoß anwenden
         }
-        bulletCount--;              // Munition verringern
+        if (!hasInfiniteAmmo) {
+            bulletCount--;              // Munition verringern
+        }
         stats.incrementShotsFired(); // Statistik aktualisieren
         consecutiveShots++;   // Schusszähler erhöhen
         lastShotTime = System.currentTimeMillis(); // Zeit speichern
@@ -155,6 +158,21 @@ public class AK47 extends GenericWeapon {
             return new Vector2f(0, 0); // Kein Rückstoß
         }
         return RecoilPattern.getRecoil(consecutiveShots);
+    }
+
+    @Override
+    public void setHasInfiniteAmmo(boolean hasInfiniteAmmo) {
+        this.hasInfiniteAmmo = hasInfiniteAmmo; // Setzt den Status für unendliche Munition
+        if (hasInfiniteAmmo) {
+            bulletCount = Integer.MAX_VALUE; // Setzt die Munitionsanzahl auf unendlich
+        } else {
+            bulletCount = ammo; // Setzt die Munitionsanzahl auf das Maximum zurück
+        }
+    }
+
+    @Override
+    public boolean hasInfiniteAmmo() {
+        return hasInfiniteAmmo; // Gibt den Status für unendliche Munition zurück
     }
 
     @Override

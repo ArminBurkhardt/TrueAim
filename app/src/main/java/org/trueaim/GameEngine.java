@@ -76,6 +76,7 @@ public class GameEngine {
         weapon.setStats(tracker); // Überträgt die Statistiken der aktuellen Waffe auf die neue Waffe
         weapon.setRecoil(this.weapon.hasRecoil()); // Setzt den Rückstoßstatus der neuen Waffe
         weapon.setActive(this.weapon.isActive()); // Setzt den Aktivierungsstatus der neuen Waffe
+        weapon.setHasInfiniteAmmo(this.weapon.hasInfiniteAmmo()); // Setzt den unendliche Munition Status der neuen Waffe
         inputManager.addRightClickCallback(weapon::onRightPress); // Rechtsklick: Zielfernrohr
         inputManager.addRkeyCallback(weapon::Reload);      //R-Taste: Nachladen
         inputManager.addLeftReleaseCallback(weapon::onLeftRelease); // Linke Maustaste loslassen: Waffe abfeuern
@@ -129,6 +130,7 @@ public class GameEngine {
                 weapon.setActive(false); // Waffe deaktivieren, wenn Statistik-UI sichtbar ist
             } else if (!statGUI.isVisible() && !weapon.isActive()) {
                 weapon.setRecoil(statGUI.getGunHasRecoil()); // Waffenstatus basierend auf Recoil-Einstellung der Statistik-UI setzen
+                weapon.setHasInfiniteAmmo(statGUI.hasInfiniteAmmo()); // Unendliche Munition basierend auf Statistik-UI-Einstellung setzen
                 weapon.setActive(true); // Waffe aktivieren, wenn Statistik-UI nicht sichtbar ist
             }
 
