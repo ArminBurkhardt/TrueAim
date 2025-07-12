@@ -57,6 +57,7 @@ public class StatGUI {
     private Button sensIncreaseButton; // Button zum Erhöhen der Sensitivität
     private Button fovDecreaseButton; // Button zum Verringern des FOVs
     private Button fovIncreaseButton; // Button zum Erhöhen des FOVs
+    private Button overlayModeButton; // Button zum Umschalten des Overlay-Modus
 
     private int windowWidth; // Breite des Fensters
     private int windowHeight; // Höhe des Fensters
@@ -186,6 +187,12 @@ public class StatGUI {
         Button b11 = new Button(windowWidth-offset1 - buttonWidth/4, offset1, buttonWidth/4, buttonWidth/4, "X", this::disable, FONT_NAME);
         buttons.add(b11);
 
+        // Overlay Mode Button
+        Button b18 = new Button(windowWidth-offset1 - buttonWidth, offset1*4, buttonWidth, buttonHeight, "Overlay: SIMPLE", this::_overlayModeToggle, FONT_NAME);
+        overlayModeButton = b18;
+        buttons.add(b18);
+
+
 
         // Gun Sektion
         Button b12 = new Button(offset1 + offset3*2, (int) (offset1 + offset2 + buttonHeight * 4.5f + offset2 + offset3*2), buttonWidth, buttonHeight, "TOGGLE", this::_recoilToggle, FONT_NAME, true);
@@ -289,6 +296,25 @@ public class StatGUI {
     }
     private void _infiniteAmmoToggle() {
         this.hasInfiniteAmmo = !this.hasInfiniteAmmo; // Toggle für unendliche Munition
+    }
+
+    // Overlay Mode Toggle
+    private void _overlayModeToggle() {
+        String mode = overlayRenderer.getIngameHUD().getDrawWeaponOverlayMode();
+        switch (mode) {
+            case "SIMPLE":
+                overlayRenderer.getIngameHUD().setDrawWeaponOverlayMode("FULL");
+                overlayModeButton.setLabel("Overlay: FULL");
+                break;
+            case "FULL":
+                overlayRenderer.getIngameHUD().setDrawWeaponOverlayMode("OFF");
+                overlayModeButton.setLabel("Overlay: OFF");
+                break;
+            default:
+                overlayRenderer.getIngameHUD().setDrawWeaponOverlayMode("SIMPLE");
+                overlayModeButton.setLabel("Overlay: SIMPLE");
+                break;
+        }
     }
 
     // Methoden für die User-Sektion

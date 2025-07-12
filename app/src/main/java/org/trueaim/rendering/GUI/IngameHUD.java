@@ -45,7 +45,7 @@ public class IngameHUD {
     private Crosshairs crosshair;
     private CrosshairManager crosshairManager;
     private ArrayList<NVGPaint> paints = new ArrayList<>(); // Liste von NVGPaints
-    private HashMap<String, ByteBuffer> images = new HashMap<>(); // Map für Bilder
+    private HashMap<String, Integer> images = new HashMap<>(); // Map für Bilder
     private String drawWeaponOverlayMode = "SIMPLE"; // Overlay-Modus für Waffe ("OFF": Aus, "SIMPLE": Zeichnung (hehe), "FULL": Ingame Aufnahme)
     private double mouseX, mouseY;
     private double dx, dy, dr; // Mausbewegung Differenz => für Moving Average
@@ -108,6 +108,8 @@ public class IngameHUD {
             loadImage("/overlay/skins/V9S_art_inv.png", "V9S_INVERTED");
             loadImage("/overlay/skins/AK_art_pov.png", "AK_MODEL_OVERLAY");
             loadImage("/overlay/skins/V9S_art_pov_1.png", "V9S_MODEL_OVERLAY");
+            loadImage("/overlay/skins/full_frames/v9s_THE_FINALS.png", "V9S_MODEL_INGAME"); // Credit: THE FINALS, https://www.reachthefinals.com/
+            loadImage("/overlay/extra/thefinals_web_thefinals_small_01.png", "THE_FINALS_LOGO"); // Credit: THE FINALS, https://www.reachthefinals.com/
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
@@ -144,7 +146,7 @@ public class IngameHUD {
         }
     }
 
-
+    // TODO: aktivieren
     private void drawHitmarker(Window window) {
         // Position des Hitmarkers
         int x = (int) window.getWidth() / 2;
@@ -247,9 +249,9 @@ public class IngameHUD {
 
         // Bilder laden
         String weaponName = equippedWeapon.getClass().getSimpleName();
-        ByteBuffer imageBufferAK = (weaponName.equals("AK47")) ? images.get("AK47_INVERTED") : images.get("AK47");
+        int imageBufferAK = (weaponName.equals("AK47")) ? images.get("AK47_INVERTED") : images.get("AK47");
 
-        ByteBuffer imageBufferV9S = (weaponName.equals("V9S")) ? images.get("V9S_INVERTED") : images.get("V9S");
+        int imageBufferV9S = (weaponName.equals("V9S")) ? images.get("V9S_INVERTED") : images.get("V9S");
 
 
         // Berechne die Größe des Bildes
@@ -374,10 +376,9 @@ public class IngameHUD {
         }
     }
 
-    // TODO: V9S Model Overlay
     private void drawWeaponOverlay(Window window) {
         if (equippedWeapon != null) {
-            ByteBuffer imageBuffer = null;
+            int imageBuffer = 0;
             String weaponName = equippedWeapon.getClass().getSimpleName();
             switch (drawWeaponOverlayMode) {
                 case "OFF" -> {
@@ -387,11 +388,11 @@ public class IngameHUD {
                     imageBuffer = (weaponName.equals("AK47")) ? images.get("AK_MODEL_OVERLAY") : images.get("V9S_MODEL_OVERLAY");
                 }
                 case "FULL" -> {
-                    imageBuffer = (weaponName.equals("AK47")) ? images.get("AKM_INGAME") : null;
+                    imageBuffer = (weaponName.equals("AK47")) ? 0 : images.get("V9S_MODEL_INGAME");
                 }
             }
 
-            if (imageBuffer == null) {
+            if (imageBuffer == 0) {
                 return; // Kein Bild gefunden, Overlay nicht zeichnen
             }
 
@@ -416,6 +417,26 @@ public class IngameHUD {
             nvgBeginPath(vg);
             drawImage(window, imageBuffer, (float) -dx, (float) dy + 10, (float) window.getWidth(), window.getHeight(), 1.0f, (float) -dr);
             nvgClosePath(vg);
+        }
+    }
+
+    private void credit(Window window) {
+        // Credit für das Spiel
+        float w = window.getWidth();
+        float h = window.getHeight();
+        float x = w / 100f;
+        float scale = w / 1200f; // Skalierung für Bild
+        float fontSize = w / 120f;
+        nvgFontSize(vg, fontSize);
+        nvgFontFace(vg, FONT_NAME);
+
+        // Credit für Waffenbilder
+        if (drawWeaponOverlayMode.equals("FULL")) {
+            nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_BOTTOM);
+            nvgFillColor(vg, rgba(0x80, 0x80, 0x80, 160, colour));
+            nvgText(vg, x, window.getHeight() - 93 / scale,
+                    "Weapon Art by THE FINALS");
+            drawImage(window, images.get("THE_FINALS_LOGO"), x, window.getHeight() - 83 / scale, 435 / scale, 73 / scale, 1.0f);
         }
     }
 
@@ -448,6 +469,7 @@ public class IngameHUD {
         calculateFPS();
 
         // _drawDeprecated(window);
+        credit(window);
 
         updateMousePos(window); // Mausposition aktualisieren
         drawWeaponOverlay(window);
@@ -472,23 +494,22 @@ public class IngameHUD {
         if (imageBuffer == null) {
             throw new IOException("Could not load image: " + imagePath);
         }
-        images.put(key, imageBuffer);
+        int image = nvgCreateImageMem(vg, 0, imageBuffer);
+        images.put(key, image);
 
     }
 
     /**
      * Zeichnet ein Bild aus dem ByteBuffer an der angegebenen Position.
      * @param window Das Fenster, in dem das Bild gezeichnet wird.
-     * @param imageBuffer Der ByteBuffer, der das Bild enthält.
+     * @param image Der ByteBuffer, der das Bild enthält.
      * @param x Die x-Position des Bildes.
      * @param y Die y-Position des Bildes.
      * @param width Die Breite des Bildes.
      * @param height Die Höhe des Bildes.
      * @param alpha Die Transparenz des Bildes (0.0f - 1.0f).
      */
-    private void drawImage(Window window, ByteBuffer imageBuffer, float x, float y, float width, float height, float alpha) {
-        // Erstelle ein NVGImage aus dem ByteBuffer
-        int image = nvgCreateImageMem(vg, 0, imageBuffer);
+    private void drawImage(Window window, int image, float x, float y, float width, float height, float alpha) {
         if (image == -1) {
             throw new RuntimeException("Could not retrieve image from buffer");
         }
@@ -504,9 +525,7 @@ public class IngameHUD {
     }
 
 
-    private void drawImage(Window window, ByteBuffer imageBuffer, float x, float y, float width, float height, float alpha, float rotation) {
-        // Erstelle ein NVGImage aus dem ByteBuffer
-        int image = nvgCreateImageMem(vg, 0, imageBuffer);
+    private void drawImage(Window window, int image, float x, float y, float width, float height, float alpha, float rotation) {
         if (image == -1) {
             throw new RuntimeException("Could not retrieve image from buffer");
         }
@@ -527,6 +546,13 @@ public class IngameHUD {
     }
     public Crosshairs getCrosshair() {
         return crosshair;
+    }
+
+    public void setDrawWeaponOverlayMode(String mode) {
+        this.drawWeaponOverlayMode = mode;
+    }
+    public String getDrawWeaponOverlayMode() {
+        return drawWeaponOverlayMode;
     }
 
     private void calculateFPS() {

@@ -1,6 +1,5 @@
 package org.trueaim.rendering;
 
-import lombok.Getter;
 import org.trueaim.Window;
 import org.trueaim.rendering.GUI.Crosshairs;
 import org.trueaim.rendering.GUI.IngameHUD;

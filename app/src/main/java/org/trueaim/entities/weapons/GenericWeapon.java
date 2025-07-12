@@ -1,5 +1,4 @@
 package org.trueaim.entities.weapons;
-import lombok.Getter;
 import org.joml.Vector2f;
 import org.trueaim.shootable.Shootable;
 import org.trueaim.stats.StatTracker;
