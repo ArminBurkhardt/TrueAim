@@ -34,18 +34,6 @@ public class HeatmapCheck {
         return new HeatmapValues(xOffset, yOffset);
     }
 
-    public HeatmapValues bestShot(HeatmapValues[] shots) {
-        if (shots == null || shots.length == 0) return null;
-
-        HeatmapValues bestShot = null;
-        for (HeatmapValues shot : shots) {
-            if (shot == null) continue;
-            if (bestShot == null || totalOffset(shot) < totalOffset(bestShot)) {
-                bestShot = shot;
-            }
-        }
-        return bestShot;
-    }
 
     public double totalOffset(HeatmapValues shot) {
         if (shot == null) {

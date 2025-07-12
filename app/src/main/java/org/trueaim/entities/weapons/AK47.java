@@ -3,6 +3,7 @@ import lombok.Getter;
 import org.joml.Vector2f;
 import org.trueaim.Camera;
 import org.trueaim.rendering.Renderer;
+import org.trueaim.sound.SoundPlayer;
 
 /**
  * Spezifische Implementierung der AK-47-Waffe.
@@ -15,6 +16,7 @@ public class AK47 extends GenericWeapon {
     //TODO renderer entfernen, falls nicht für zoom benötigt
     private final Renderer renderer;  //Referenz zu Renderer (für FOV Change)
     protected int ammo = 30;             // Magazingröße
+    protected SoundPlayer soundPlayer; // Sound-Manager für Schussgeräusche
     private int bulletCount = 30;           // Aktuelle Munitionsanzahl
     private boolean active = true;      // Aktiviert/Deaktiviert Schießen
     private boolean fullAuto = true;    // Vollautomatischer Modus
@@ -24,9 +26,10 @@ public class AK47 extends GenericWeapon {
     private int RPM = 600; // Schüsse pro Minute (Standard für AK-47), nur relevant im Vollautomatikmodus
     private boolean hasInfiniteAmmo = false; // Standard: Waffe hat keine unendliche Munition
 
-    public AK47(Camera camera, Renderer renderer) {
+    public AK47(Camera camera, Renderer renderer, SoundPlayer soundPlayer) {
         this.camera = camera;
         this.renderer = renderer;
+        this.soundPlayer = soundPlayer;
     }
 
     @Override
@@ -94,6 +97,7 @@ public class AK47 extends GenericWeapon {
         consecutiveShots = 0; // Schusskette zurücksetzen
         lastShotTime = 0; // Letzten Schusszeitpunkt zurücksetzen
         stats.registerReload(); // Statistik aktualisieren
+        soundPlayer.play(SoundPlayer.RELOAD); // Nachlade-Sound abspielen
         System.out.println("Tut Tut, Wir haben nachgeladen, Tut Tut");
         System.out.println("das ist obviously ne Testnachricht, nicht vergessen zu entfernen xd");
     }
@@ -117,6 +121,7 @@ public class AK47 extends GenericWeapon {
         stats.incrementShotsFired(); // Statistik aktualisieren
         consecutiveShots++;   // Schusszähler erhöhen
         lastShotTime = System.currentTimeMillis(); // Zeit speichern
+        soundPlayer.play(SoundPlayer.SHOOT); // Schuss-Sound abspielen
     }
 
     @Override

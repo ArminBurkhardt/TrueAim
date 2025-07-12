@@ -7,6 +7,7 @@ import org.lwjgl.openal.*;
 /**
  * Zentrale Sound-Steuerung ohne Enums.
  * Bietet typsichere Methoden für alle Sound-Ereignisse.
+ * Eigentlich nicht nötig, aber entlastet Game Engine enorm.
  */
 public class SoundPlayer {
     private final SoundManager soundManager;
@@ -36,8 +37,9 @@ public class SoundPlayer {
 //        createSound(HIT, "hit.ogg", false, false);
 //        createSound(HEADSHOT, "headshot.ogg", false, false);
 //
-//        // Nachladesound (relativer UI-Sound)
-//        createSound(RELOAD, "reload.ogg", true, false);
+        // Nachladesound (relativer UI-Sound
+        // https://freesound.org/people/ser%C3%B8t%C5%8Dnin/sounds/674742/
+        createSound(RELOAD, "reload.ogg", true, false);
 //
 //        // UI-Sound (relativer UI-Sound)
 //        createSound(UI_CLICK, "ui_click.ogg", true, false);
@@ -51,7 +53,9 @@ public class SoundPlayer {
      * @param loop Soll der Sound in Schleife abgespielt werden?
      */
     private void createSound(String name, String file, boolean isUI, boolean loop) {
-        soundManager.loadSound(name, "sounds/" + file);
+        soundManager.loadSound(name, "/sounds/" + file);
+        soundManager.createSourcePool(name, 5, false, true); // Poolgröße 5
+        soundManager.setPoolBuffer(name, name);
         soundManager.createSource(name + "_SOURCE", loop, isUI);
         soundManager.setSourceBuffer(name + "_SOURCE", name);
     }
@@ -79,9 +83,12 @@ public class SoundPlayer {
      * @param soundType Sound-Konstante (z.B. SoundPlayer.SHOOT)
      */
     public void play(String soundType) {
-        soundManager.playSound(soundType + "_SOURCE");
+        if (SHOOT.equals(soundType)) {
+            soundManager.playFromPool(SHOOT);
+        } else {
+            soundManager.playSound(soundType + "_SOURCE");
+        }
     }
-
     /**
      * Gibt alle Sound-Ressourcen frei.
      */

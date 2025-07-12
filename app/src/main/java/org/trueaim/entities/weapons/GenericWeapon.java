@@ -4,6 +4,8 @@ import org.joml.Vector2f;
 import org.trueaim.shootable.Shootable;
 import org.trueaim.stats.StatTracker;
 
+//TODO Waffen laden nach wenn man sie wechselt, sollte obviously nicht so sein
+
 /**
  * Basisklasse für alle Waffen.
  * Implementiert grundlegende Schussfunktionalität.

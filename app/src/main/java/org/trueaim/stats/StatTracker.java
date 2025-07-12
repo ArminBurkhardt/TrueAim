@@ -71,6 +71,9 @@ public class StatTracker {
     public int getReloads() { return reloads;}
     public boolean isEnabled() { return enabled; }
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
+    public List<HeatmapValues> getHeatmapValues() {
+        return heatmapValues;
+    }
 
     public void resetStats() {
         shotsFired = 0;
@@ -83,6 +86,7 @@ public class StatTracker {
         heatmapValues.clear(); // Heatmap-Werte zurücksetzen
     }
 
+    // Heatmap-Werte hinzufügen
     public void hadd(HeatmapValues value){
         if (!enabled) return; // Wenn deaktiviert, nichts tun
         if (value != null) {
@@ -90,9 +94,6 @@ public class StatTracker {
         }
     }
 
-    public List<HeatmapValues> getHeatmapValues() {
-        return heatmapValues;
-    }
 
     //Debgug TODO delete
     public void fprint(){

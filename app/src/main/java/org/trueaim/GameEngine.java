@@ -9,6 +9,7 @@ import org.trueaim.rendering.GUI.StatGUI;
 import org.trueaim.rendering.OverlayRenderer;
 import org.trueaim.rendering.Renderer;
 import org.trueaim.entities.targets.TargetManager;
+import org.trueaim.sound.SoundPlayer;
 import org.trueaim.stats.StatTracker;
 import org.trueaim.strahlwerfen.HeatmapCheck;
 import org.trueaim.strahlwerfen.Raycasting;
@@ -31,6 +32,7 @@ public class GameEngine {
     private final OverlayRenderer overlayRenderer; // UI-Renderer
     private final TargetManager targetManager;     // Zielmanager
     private final Raycasting raycaster;     // Treffererkennung
+    private final SoundPlayer soundPlayer; // Sound-Manager für Spielereignisse
     private GenericWeapon weapon;              // Spielerwaffe
     private boolean showFinalStats = false; // Flag für Statistikanzeige
     private final StatGUI statGUI; // GUI-Panel für Statistiken
@@ -41,7 +43,8 @@ public class GameEngine {
         this.inputManager = inputManager;
         this.camera = camera;
         this.renderer = new Renderer(window.getWidth(), window.getHeight()); // 3D-Renderer
-        this.weapon = new AK47(camera, renderer);  // Waffe erstellen
+        this.soundPlayer = new SoundPlayer(); // Sound-Manager initialisieren
+        this.weapon = new AK47(camera, renderer, soundPlayer);  // Waffe erstellen
         this.heatmapCheck = new HeatmapCheck();
         this.targetManager = new TargetManager();  // Ziele initialisieren
         this.raycaster = new Raycasting(targetManager, weapon.getStats(), heatmapCheck); // Trefferprüfung
@@ -99,6 +102,7 @@ public class GameEngine {
             raycaster.checkHit(camera.getPosition(), camera.getFront()); // Trefferüberprüfung
             weapon.onLeftPress();  // Waffenlogik aktivieren
             overlayRenderer.getIngameHUD().applyRecoilVector(weapon.getRecoil()); // Recoil auf HUD anwenden
+            //TODO maybe move to weapon class. // spielt auch sound ab wenn in UI (maybe mit flag abfrage lösen)
         }
     }
 
@@ -155,6 +159,7 @@ public class GameEngine {
         window.cleanup();       // Ressourcen freigeben
         statGUI.cleanup();      // Statistik-UI aufräumen
         overlayRenderer.cleanup(); // UI-Renderer aufräumen
+        soundPlayer.cleanup(); // Sound-Manager aufräumen
     }
 
     /**
@@ -169,7 +174,7 @@ public class GameEngine {
     }
 
     public void setWeaponAK47() {
-        setWeapon(new AK47(camera, renderer)); // Setzt die Waffe auf AK47
+        setWeapon(new AK47(camera, renderer, soundPlayer)); // Setzt die Waffe auf AK47
     }
 
     public void setWeaponV9S() {

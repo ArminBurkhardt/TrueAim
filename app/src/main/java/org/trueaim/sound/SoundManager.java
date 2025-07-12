@@ -29,6 +29,7 @@ public class SoundManager {
     private final List<SoundBuffer> soundBuffers = new ArrayList<>();
     private final Map<String, SoundSource> soundSources = new HashMap<>();
     private final Map<String, SoundBuffer> bufferMap = new HashMap<>();
+    private final Map<String, List<SoundSource>> soundSourcePools = new HashMap<>();
 
 
     // Der Hörer (Spielerperspektive)
@@ -95,6 +96,41 @@ public class SoundManager {
             source.play();
         }
     }
+
+    public void createSourcePool(String name, int poolSize, boolean loop, boolean relative) {
+        List<SoundSource> pool = new ArrayList<>();
+        for (int i = 0; i < poolSize; i++) {
+            SoundSource source = new SoundSource(loop, relative);
+            pool.add(source);
+        }
+        soundSourcePools.put(name, pool);
+    }
+
+    public void setPoolBuffer(String poolName, String bufferName) {
+        List<SoundSource> pool = soundSourcePools.get(poolName);
+        SoundBuffer buffer = bufferMap.get(bufferName);
+        if (pool != null && buffer != null) {
+            for (SoundSource source : pool) {
+                source.setBuffer(buffer.getBufferId());
+            }
+        }
+    }
+
+    public void playFromPool(String poolName) {
+        List<SoundSource> pool = soundSourcePools.get(poolName);
+        if (pool != null) {
+            // Finde die erste verfügbare Quelle
+            for (SoundSource source : pool) {
+                if (!source.isPlaying()) {
+                    source.play();
+                    return;
+                }
+            }
+            // Falls alle belegt sind, überschreibe die älteste Quelle
+            pool.get(0).play();
+        }
+    }
+
 
     /**
      * Fügt einen Soundpuffer zur Verwaltung hinzu.
@@ -168,6 +204,10 @@ public class SoundManager {
         // Soundquellen aufräumen
         soundSources.values().forEach(SoundSource::cleanup);
         soundSources.clear();
+
+        // Soundpools aufräumen
+        soundSourcePools.values().forEach(pool -> pool.forEach(SoundSource::cleanup));
+        soundSourcePools.clear();
 
         // Soundpuffer aufräumen
         soundBuffers.forEach(SoundBuffer::cleanup);

@@ -22,10 +22,15 @@ repositories {
 }
 
 dependencies {
+
+    implementation "org.lwjgl:lwjgl-stb:3.3.6"
+    //Ich hatte den selben ******* Fehler wie du beim ******* Import.
+    // Was ist das für ********** *******.
+
     implementation "org.lwjgl:lwjgl:3.3.6"
     implementation "org.lwjgl:lwjgl-glfw:3.3.6"
     implementation "org.lwjgl:lwjgl-opengl:3.3.6"
-    implementation "org.lwjgl:lwjgl-openal:3.2.3" // OpenAL für Sound
+    implementation "org.lwjgl:lwjgl-openal:3.3.6" // OpenAL für Sound
     implementation 'org.joml:joml:1.10.3'
     implementation "org.lwjgl:lwjgl-nanovg:3.3.6" // Obwohl das schon in legui enthalten ist, FUNKTIONIERT ES SONST NICHT?
     // LEGUI - https://github.com/SpinyOwl/legui
@@ -40,7 +45,7 @@ dependencies {
     runtimeOnly "org.lwjgl:lwjgl:3.3.6:natives-windows"
     runtimeOnly "org.lwjgl:lwjgl-glfw:3.3.6:natives-windows"
     runtimeOnly "org.lwjgl:lwjgl-opengl:3.3.6:natives-windows"
-    runtimeOnly "org.lwjgl:lwjgl-openal:3.2.3:natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl-openal:3.3.6:natives-windows"
 
 
     // Use JUnit Jupiter for testing.
