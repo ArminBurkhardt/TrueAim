@@ -12,7 +12,7 @@ import org.joml.Vector3f;
  */
 public class Camera {
     // Kameraposition im 3D-Raum
-    private final Vector3f position = new Vector3f(0,1, 0);
+    private Vector3f position = new Vector3f(0,1, 0);
     // Euler-Rotation (x: Pitch, y: Yaw, z: Roll)
     private final Vector3f rotation = new Vector3f();
     // Richtungsvektoren
@@ -21,13 +21,25 @@ public class Camera {
     private final Vector3f right = new Vector3f(1, 0, 0);   // Rechtsvektor
     // View-Matrix
     private final Matrix4f viewMatrix = new Matrix4f();
-    private boolean firstUpdate = true; // Flag für erste Aktualisierung
+    private boolean firstUpdate = true; // Flag für erste Aktualisierung TODO delete
 
-    // Bewegungsmethoden (relativ zur aktuellen Ausrichtung)
-    public void moveForward(float dist) { position.fma(dist, front); }
-    public void moveBackward(float dist) { position.fma(-dist, front); }
-    public void moveLeft(float dist) { position.fma(-dist, right); }
-    public void moveRight(float dist) { position.fma(dist, right); }
+    // Bewegungsmethoden (relativ zur aktuellen Ausrichtung) (beschränkter Bewegungsraum)
+    public void moveForward(float dist) {
+        Vector3f theoreticalPosition = position.fma(dist, front);
+        position =  vectorSqueeze(theoreticalPosition, -3, 3);
+    }
+    public void moveBackward(float dist) {
+        Vector3f theoreticalPosition = position.fma(-dist, front);
+        position = vectorSqueeze(theoreticalPosition, -3, 3);
+    }
+    public void moveLeft(float dist) {
+        Vector3f theoreticalPosition = position.fma(-dist, right);
+        position = vectorSqueeze(theoreticalPosition, -3, 3);
+    }
+    public void moveRight(float dist) {
+        Vector3f theoreticalPosition = position.fma(dist, right);
+        position = vectorSqueeze(theoreticalPosition, -3, 3);
+    }
 
     /**
      * Rotiert die Kamera um die angegebenen Winkel.
@@ -44,6 +56,20 @@ public class Camera {
 
         // Richtungsvektoren neu berechnen
         updateVectors();
+    }
+    // Squeeze-Funktion, um Werte zwischen min und max zu begrenzen
+    public float squeeze(float value, float min, float max) {
+        // Squeezed value between min and max
+        return Math.max(min, Math.min(max, value));
+    }
+
+    public Vector3f vectorSqueeze(Vector3f vector, float min, float max) {
+        // Squeeze each component of the vector
+        return new Vector3f(
+                squeeze(vector.x, min, max),
+                1.0f, // Y-Position auf 1 setzen (Bodenhöhe)
+                squeeze(vector.z, min, max)
+        );
     }
 
     //Debug Funktion TODO delete

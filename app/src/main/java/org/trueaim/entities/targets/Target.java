@@ -7,9 +7,9 @@ import org.joml.Vector3f;
  */
 public class Target {
     private Vector3f position;          // Körperposition
-    private final Vector3f headOffset = new Vector3f(0, 0.75f, 0); // Kopfposition relativ zum Körper
-    private float bodyRadius = 0.5f;    // Körperradius
-    private float headRadius = 0.25f;   // Kopfradius
+    private final Vector3f headOffset = new Vector3f(0, 0.70f, 0); // Kopfposition relativ zum Körper
+    private final float bodyRadius = 0.5f;    // Körperradius
+    private final float headRadius = 0.25f;   // Kopfradius
     private boolean hit = false;        // Trefferstatus
     private Vector3f velocity;          // Bewegungsvektor
 

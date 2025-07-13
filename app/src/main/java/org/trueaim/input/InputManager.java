@@ -22,7 +22,7 @@ public class InputManager {
     private final boolean[] keyStates = new boolean[GLFW.GLFW_KEY_LAST + 1]; // Tastenstatus
     private boolean mouseLocked = true;  // Mauszeiger eingeschlossen?
     private float sensitivity = 0.1f;    // Mausempfindlichkeit //TODO maybe option zum anpassen
-    private float movementSpeed = 5.0f;  // Bewegungsgeschwindigkeit
+    private float movementSpeed = 3.0f;  // Bewegungsgeschwindigkeit
     private double lastMouseX, lastMouseY; // Letzte Mausposition
     private boolean firstMouse = true;    // Erste Bewegung?
     private final List<Runnable> leftClickCallbacks = new ArrayList<>();  // Linksklick-Handler

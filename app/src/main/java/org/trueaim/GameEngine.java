@@ -34,9 +34,9 @@ public class GameEngine {
     private final Raycasting raycaster;     // Treffererkennung
     private final SoundPlayer soundPlayer; // Sound-Manager für Spielereignisse
     private GenericWeapon weapon;              // Spielerwaffe
-    private boolean showFinalStats = false; // Flag für Statistikanzeige
+    private boolean showFinalStats = false; // Flag für Statistikanzeige TODO delete
     private final StatGUI statGUI; // GUI-Panel für Statistiken
-    private final HeatmapCheck heatmapCheck;
+    private final HeatmapCheck heatmapCheck; // Heatmap-Datensammlung
 
     public GameEngine(Window window, InputManager inputManager, Camera camera) {
         this.window = window;
@@ -45,7 +45,7 @@ public class GameEngine {
         this.renderer = new Renderer(window.getWidth(), window.getHeight()); // 3D-Renderer
         this.soundPlayer = new SoundPlayer(); // Sound-Manager initialisieren
         this.weapon = new AK47(camera, renderer, soundPlayer);  // Waffe erstellen
-        this.heatmapCheck = new HeatmapCheck();
+        this.heatmapCheck = new HeatmapCheck(); // Heatmap-Datensammlung initialisieren
         this.targetManager = new TargetManager();  // Ziele initialisieren
         this.raycaster = new Raycasting(targetManager, weapon.getStats(), heatmapCheck); // Trefferprüfung
         this.overlayRenderer = new OverlayRenderer(weapon.getStats(), window); // UI-Renderer
@@ -159,8 +159,8 @@ public class GameEngine {
         }
 
         // Nach Spielende
-        showFinalStats = true;  //Grade useless, maybe needed for render
-        printFinalStatistics(); // Statistik ausgeben
+        showFinalStats = true;  //Grade useless, maybe needed for render //TODO delete
+        printFinalStatistics(); // Statistik ausgeben TODO delete
         window.cleanup();       // Ressourcen freigeben
         statGUI.cleanup();      // Statistik-UI aufräumen
         overlayRenderer.cleanup(); // UI-Renderer aufräumen
