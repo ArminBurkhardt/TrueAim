@@ -29,6 +29,7 @@ public abstract class GenericWeapon implements Shootable {
     }
 
     public void onRightRelease() {}
+
     public void onLeftRelease() {}
 
     public abstract boolean hasAmmo();

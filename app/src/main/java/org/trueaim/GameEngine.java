@@ -132,6 +132,10 @@ public class GameEngine {
     }
 
 
+    /**
+     * Fortlaufende Schussverarbeitung bei Vollautomatikwaffen.
+     * Prüft ob die Waffe schießen darf und ob Munition vorhanden ist.
+     */
     private void continueHandleShoot() {
         if (weapon.hasAmmo() && weapon.isFullAuto() && weapon.allowedToShoot() && weapon.wantsToShoot()) {
             handleShoot();

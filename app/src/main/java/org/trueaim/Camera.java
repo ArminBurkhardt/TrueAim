@@ -22,6 +22,13 @@ public class Camera {
     // View-Matrix
     private final Matrix4f viewMatrix = new Matrix4f();
 
+
+    //Bewegungsmethoden für freie Bewegungsrichtung (unbeschränkter Bewegungsraum) (DEBUG)
+//    public void moveForward(float dist) { position.fma(dist, front); }
+//    public void moveBackward(float dist) { position.fma(-dist, front); }
+//    public void moveLeft(float dist) { position.fma(-dist, right); }
+//    public void moveRight(float dist) { position.fma(dist, right); }
+
     // Bewegungsmethoden (relativ zur aktuellen Ausrichtung) (beschränkter Bewegungsraum)
     public void moveForward(float dist) {
         Vector3f theoreticalPosition = position.fma(dist, front);

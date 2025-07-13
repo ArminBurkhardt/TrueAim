@@ -95,7 +95,7 @@ public class AK47 extends GenericWeapon {
      * Setzt die Munition auf das Maximum zurück.
      */
     @Override
-    public void Reload(){
+    public void Reload() {
         if (!active || hasInfiniteAmmo) {
             return; // Waffe ist deaktiviert, Nachladen nicht möglich
         }
@@ -104,8 +104,6 @@ public class AK47 extends GenericWeapon {
         lastShotTime = 0; // Letzten Schusszeitpunkt zurücksetzen
         stats.registerReload(); // Statistik aktualisieren
         soundPlayer.play(SoundPlayer.AK_RELOAD); // Nachlade-Sound abspielen
-        System.out.println("Tut Tut, Wir haben nachgeladen, Tut Tut");
-        System.out.println("das ist obviously ne Testnachricht, nicht vergessen zu entfernen xd"); // ← absichtlich noch drin, da wir es witzig fanden xd
     }
 
     //Schusseffekte (Raycasting für Schuss / Ammo überprüfung wird in GameEngine gestartet)
