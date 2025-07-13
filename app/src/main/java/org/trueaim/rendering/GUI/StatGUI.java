@@ -100,7 +100,6 @@ public class StatGUI {
         this.inputManager = inputManager; // Eingabemanager für Sensitivitätsänderungen
     }
 
-    // TODO: Vielleicht einen Setter für StatTracker hinzufügen (& in der GameEngine setzen), falls sich die Waffe ändert und das nicht übernommen wird
 
     public void init(Window window) throws Exception {
         this.vg = window.antialiasing ? nvgCreate(NVG_ANTIALIAS | NVG_STENCIL_STROKES) : nvgCreate(NVG_STENCIL_STROKES);
@@ -188,7 +187,7 @@ public class StatGUI {
         buttons.add(b11);
 
         // Overlay Mode Button
-        Button b18 = new Button(windowWidth-offset1 - buttonWidth, offset1*4, buttonWidth, buttonHeight, "Overlay: SIMPLE", this::_overlayModeToggle, FONT_NAME);
+        Button b18 = new Button(offset1 + windowWidth - offset1*3 - buttonWidth*2 + offset3*2, windowHeight / 2 + offset3*4, buttonWidth, buttonHeight, "SIMPLE", this::_overlayModeToggle, FONT_NAME);
         overlayModeButton = b18;
         buttons.add(b18);
 
@@ -304,15 +303,15 @@ public class StatGUI {
         switch (mode) {
             case "SIMPLE":
                 overlayRenderer.getIngameHUD().setDrawWeaponOverlayMode("FULL");
-                overlayModeButton.setLabel("Overlay: FULL");
+                overlayModeButton.setLabel("FULL");
                 break;
             case "FULL":
                 overlayRenderer.getIngameHUD().setDrawWeaponOverlayMode("OFF");
-                overlayModeButton.setLabel("Overlay: OFF");
+                overlayModeButton.setLabel("OFF");
                 break;
             default:
                 overlayRenderer.getIngameHUD().setDrawWeaponOverlayMode("SIMPLE");
-                overlayModeButton.setLabel("Overlay: SIMPLE");
+                overlayModeButton.setLabel("SIMPLE");
                 break;
         }
     }
@@ -511,9 +510,9 @@ public class StatGUI {
     // Zeichnet die Statistiken-Sektion des GUIs
     private void drawStatSection() {
         // Hintergrund
-        nvgBoxGradient(vg, offset1, windowHeight / 2f, windowWidth - offset1*2, windowHeight / 2f - offset1, r * 2, f, rgba(0x1c, 0x7e, 0x80, 255, colorA), rgba(0x0a, 0x5b, 0x69, 240, colorB), paint);
+        nvgBoxGradient(vg, offset1, windowHeight / 2f, windowWidth - offset1*4 - buttonWidth*2, windowHeight / 2f - offset1, r * 2, f, rgba(0x1c, 0x7e, 0x80, 255, colorA), rgba(0x0a, 0x5b, 0x69, 240, colorB), paint);
         nvgBeginPath(vg);
-        nvgRoundedRect(vg, offset1, windowHeight / 2f, windowWidth - offset1*2, windowHeight / 2f - offset1, 10.0f);
+        nvgRoundedRect(vg, offset1, windowHeight / 2f, windowWidth - offset1*4 - buttonWidth*2, windowHeight / 2f - offset1, 10.0f);
         nvgFillPaint(vg, paint);
         nvgFill(vg);
 
@@ -579,6 +578,30 @@ public class StatGUI {
 
     }
 
+    private void drawExtraSection() {
+        // Hintergrund
+        nvgBoxGradient(vg, offset1 + windowWidth - offset1*3 - buttonWidth*2 , windowHeight / 2f, offset1 + buttonWidth*2, windowHeight / 2f - offset1, r * 2, f, rgba(0x1c, 0x7e, 0x80, 255, colorA), rgba(0x0a, 0x5b, 0x69, 240, colorB), paint);
+        nvgBeginPath(vg);
+        nvgRoundedRect(vg, offset1 + windowWidth - offset1*3 - buttonWidth*2 , windowHeight / 2f, offset1 + buttonWidth*2, windowHeight / 2f - offset1, 10.0f);
+        nvgFillPaint(vg, paint);
+        nvgFill(vg);
+
+        // Text
+        int color = 0xff; // Textfarbe
+        nvgFontSize(vg, fontSize);
+        nvgFillColor(vg, rgba(color, color, color, 140, colour));
+        nvgFontFace(vg, FONT_NAME);
+        nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+        nvgText(vg, offset1 + windowWidth - offset1*3 - buttonWidth*2 + offset3, windowHeight / 2f + offset3, "Extra"); // Titel des Abschnitts
+
+        nvgFontSize(vg, fontSize);
+        nvgFillColor(vg, rgba(color, color, color, 140, colour));
+        nvgFontFace(vg, FONT_NAME);
+        nvgTextAlign(vg, NVG_ALIGN_LEFT | NVG_ALIGN_TOP);
+        nvgText(vg, offset1 + windowWidth - offset1*3 - buttonWidth*2 + offset3*2, windowHeight / 2f + offset3*3,
+                "Weapon Model Overlay");
+    }
+
 
 
     // Klick-Handler für die Buttons
@@ -611,6 +634,7 @@ public class StatGUI {
         drawStatSection();
         drawGunSection();
         drawUserSection();
+        drawExtraSection();
 
         // Alle Buttons rendern
         for (Button button : buttons) {

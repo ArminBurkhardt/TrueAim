@@ -5,5 +5,6 @@ public enum Crosshairs {
     PLUS,
     SMALL_PLUS,
     DOT,
+    VERY_SMALL_PLUS,
     CUSTOM,
 }

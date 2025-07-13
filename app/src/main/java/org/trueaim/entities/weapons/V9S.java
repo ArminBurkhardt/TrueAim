@@ -59,9 +59,6 @@ public class V9S extends GenericWeapon {
         this.hasRecoil = hasRecoil; // Rückstoß kann deaktiviert werden
     }
 
-    /**
-     * Überprüft ob Munition in der Waffe ist
-     */
     @Override
     public boolean hasAmmo(){
         return bulletCount > 0;
@@ -124,12 +121,6 @@ public class V9S extends GenericWeapon {
 
     @Override
     public void onRightPress() {
-        super.onRightPress();
-        // kein ADS
-        if (false) {
-            consecutiveShots = 0; // Zielen unterbricht Schusskette
-            renderer.setFOV(40);
-        }
     }
 
     @Override

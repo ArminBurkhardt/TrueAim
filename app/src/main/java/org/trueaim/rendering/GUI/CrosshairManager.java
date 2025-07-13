@@ -65,4 +65,17 @@ public class CrosshairManager {
         nvgClosePath(vg);
     }
 
+    // Very Small Plus
+    public void drawPreset4(long vg, int x, int y, int size, int graytone) {
+        nvgBeginPath(vg);
+        nvgStrokeWidth(vg, 2.0f);
+        nvgMoveTo(vg, x - size/2f, y);
+        nvgLineTo(vg, x + size/2f, y);
+        nvgMoveTo(vg, x, y - size/2f);
+        nvgLineTo(vg, x, y + size/2f);
+        nvgStrokeColor(vg, rgba(graytone, graytone, graytone, 220, col));
+        nvgStroke(vg);
+        nvgClosePath(vg);
+    }
+
 }

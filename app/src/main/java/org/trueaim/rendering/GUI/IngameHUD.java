@@ -49,6 +49,8 @@ public class IngameHUD {
     private String drawWeaponOverlayMode = "SIMPLE"; // Overlay-Modus für Waffe ("OFF": Aus, "SIMPLE": Zeichnung (hehe), "FULL": Ingame Aufnahme)
     private double mouseX, mouseY;
     private double dx, dy, dr; // Mausbewegung Differenz => für Moving Average
+    private int numHits = 0; // Anzahl der Treffer, wird für Hitmarker verwendet
+    private long hitMarkerTime = -1; // Zeitstempel für den Hitmarker
 
     // Recoil Einstellung
     private final float RECOIL_SMOOTHING = 1.025f; // Smoothing Faktor für Recoil, => Größer => schnellerer Recoil Abfall
@@ -108,7 +110,8 @@ public class IngameHUD {
             loadImage("/overlay/skins/V9S_art_inv.png", "V9S_INVERTED");
             loadImage("/overlay/skins/AK_art_pov.png", "AK_MODEL_OVERLAY");
             loadImage("/overlay/skins/V9S_art_pov_1.png", "V9S_MODEL_OVERLAY");
-            loadImage("/overlay/skins/full_frames/v9s_THE_FINALS.png", "V9S_MODEL_INGAME"); // Credit: THE FINALS, https://www.reachthefinals.com/
+            loadImage("/overlay/skins/full_frames/v9s_THE_FINALS.png", "V9S_MODEL_INGAME");      // Credit: THE FINALS, https://www.reachthefinals.com/
+            loadImage("/overlay/skins/full_frames/akm_THE_FINALS.png", "AKM_MODEL_INGAME");       // Credit: THE FINALS, https://www.reachthefinals.com/
             loadImage("/overlay/extra/thefinals_web_thefinals_small_01.png", "THE_FINALS_LOGO"); // Credit: THE FINALS, https://www.reachthefinals.com/
         } catch (IOException e) {
             e.printStackTrace();
@@ -146,19 +149,38 @@ public class IngameHUD {
         }
     }
 
-    // TODO: aktivieren
     private void drawHitmarker(Window window) {
+        int curNumHits = statTracker.getHits();
+        if (curNumHits == numHits) {
+            return; // Keine Änderung in der Anzahl der Treffer, also nichts zu tun
+        }
+
+        // Zeichne für 300ms einen Hitmarker, wenn die Anzahl der Treffer sich geändert hat
+        if (hitMarkerTime == -1) {
+            hitMarkerTime = System.currentTimeMillis(); // Setze den Hitmarker-Zeitstempel
+        } else if (System.currentTimeMillis() - hitMarkerTime > 300) {
+            hitMarkerTime = -1; // Setze den Hitmarker-Zeitstempel zurück, wenn mehr als 500ms vergangen sind
+            numHits = curNumHits; // Aktualisiere die Anzahl der Treffer
+            return; // Keine weiteren Aktionen, da der Hitmarker abgelaufen ist
+        }
+
         // Position des Hitmarkers
         int x = (int) window.getWidth() / 2;
         int y = (int) window.getHeight() / 2;
+        float d = window.getWidth() / 200f;
+        float d2 = 2f;
 
         // Hitmarker zeichnen
         nvgBeginPath(vg);
         nvgStrokeWidth(vg, 2.0f);
-        nvgMoveTo(vg, x - 10, y);
-        nvgLineTo(vg, x + 10, y);
-        nvgMoveTo(vg, x, y - 10);
-        nvgLineTo(vg, x, y + 10);
+        nvgMoveTo(vg, x - d, y - d);
+        nvgLineTo(vg, x - d/d2, y - d/d2);
+        nvgMoveTo(vg, x + d, y + d);
+        nvgLineTo(vg, x + d/d2, y + d/d2);
+        nvgMoveTo(vg, x + d, y - d);
+        nvgLineTo(vg, x + d/d2, y - d/d2);
+        nvgMoveTo(vg, x - d, y + d);
+        nvgLineTo(vg, x - d/d2, y + d/d2);
         nvgStrokeColor(vg, rgba(0xff, 0xff, 0xff, 200, colour));
         nvgStroke(vg);
         nvgClosePath(vg);
@@ -373,6 +395,7 @@ public class IngameHUD {
             case PLUS -> crosshairManager.drawPreset1(vg, window.getWidth() / 2, window.getHeight() / 2, window.getWidth() / 96, 0xff);
             case DOT -> crosshairManager.drawPreset2(vg, window.getWidth() / 2, window.getHeight() / 2, 2, 0xff);
             case SMALL_PLUS -> crosshairManager.drawPreset3(vg, window.getWidth() / 2, window.getHeight() / 2, window.getWidth() / 128, 0xff);
+            case VERY_SMALL_PLUS -> crosshairManager.drawPreset4(vg, window.getWidth() / 2, window.getHeight() / 2, window.getWidth() / 128, 0xff);
         }
     }
 
@@ -388,7 +411,7 @@ public class IngameHUD {
                     imageBuffer = (weaponName.equals("AK47")) ? images.get("AK_MODEL_OVERLAY") : images.get("V9S_MODEL_OVERLAY");
                 }
                 case "FULL" -> {
-                    imageBuffer = (weaponName.equals("AK47")) ? 0 : images.get("V9S_MODEL_INGAME");
+                    imageBuffer = (weaponName.equals("AK47")) ? images.get("AKM_MODEL_INGAME") : images.get("V9S_MODEL_INGAME");
                 }
             }
 
@@ -446,6 +469,7 @@ public class IngameHUD {
     }
 
     public void applyRecoilVector(Vector2f vector) {
+        if (!equippedWeapon.isActive()) return;
         double recoilX = vector.x * 10;
         double recoilY = vector.y * 10;
 
@@ -477,6 +501,7 @@ public class IngameHUD {
         drawStats(window, orientation);
         drawWeaponInfo(window);
         drawCrosshair(window);
+        drawHitmarker(window);
 
         nvgEndFrame(vg);
 
