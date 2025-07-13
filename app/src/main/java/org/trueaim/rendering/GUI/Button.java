@@ -4,6 +4,7 @@ import org.lwjgl.nanovg.NVGColor;
 import org.lwjgl.nanovg.NVGPaint;
 import org.lwjgl.system.MemoryUtil;
 import org.trueaim.Window;
+import org.trueaim.sound.SoundPlayer;
 
 import java.nio.DoubleBuffer;
 
@@ -173,7 +174,6 @@ public class Button {
     public void onClick() {
         if (onClickAction != null && isHovered && enabled) {
             onClickAction.run();
-            // TODO: Sound vielleicht
             if (togglable) {
                 isPressed = !isPressed; // Toggle-Zustand umschalten
             }

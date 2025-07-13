@@ -29,20 +29,18 @@ public class SoundPlayer {
      * Initialisiert alle Sounds und ihre Quellen.
      */
     private void initializeSounds() {
-        // Schusssound (relativer UI-Sound)
+        // Schusssound
         //https://freesound.org/people/Cloud-10/sounds/632821/
         createSound(SHOOT, "shot.ogg", true, false);
-//TODO
-//        // Treffersounds (3D-Positioniert)
-//        createSound(HIT, "hit.ogg", false, false);
-//        createSound(HEADSHOT, "headshot.ogg", false, false);
-//
-        // Nachladesound (relativer UI-Sound
+
+        // Nachladesound
         // https://freesound.org/people/ser%C3%B8t%C5%8Dnin/sounds/674742/
         createSound(RELOAD, "reload.ogg", true, false);
-//
-//        // UI-Sound (relativer UI-Sound)
-//        createSound(UI_CLICK, "ui_click.ogg", true, false);
+
+
+        // UI-Sound
+        //https://freesound.org/people/el_boss/sounds/677860/
+        createSound(UI_CLICK, "ui_click.ogg", true, false);
     }
 
     /**
@@ -83,11 +81,7 @@ public class SoundPlayer {
      * @param soundType Sound-Konstante (z.B. SoundPlayer.SHOOT)
      */
     public void play(String soundType) {
-        if (SHOOT.equals(soundType)) {
-            soundManager.playFromPool(SHOOT);
-        } else {
-            soundManager.playSound(soundType + "_SOURCE");
-        }
+            soundManager.playFromPool(soundType);
     }
     /**
      * Gibt alle Sound-Ressourcen frei.

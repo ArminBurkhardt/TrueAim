@@ -103,6 +103,9 @@ public class GameEngine {
      * Raycasting Klasse mit dem momentanen Klassenaufbau dort nicht initialisieren kann
      */
     private void handleShoot() {
+        if (statGUI.isVisible()) {
+            soundPlayer.play(SoundPlayer.UI_CLICK);
+        }
         if (weapon.hasAmmo()){
             raycaster.checkHit(camera.getPosition(), camera.getFront()); // Trefferüberprüfung
             weapon.onLeftPress();  // Waffenlogik aktivieren
