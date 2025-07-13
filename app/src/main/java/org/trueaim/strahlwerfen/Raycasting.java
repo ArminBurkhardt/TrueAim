@@ -23,51 +23,67 @@ public class Raycasting {
 
     /**
      * Prüft auf Treffer entlang eines Strahls.
-     * @param origin Strahlursprung (Kameraposition)
+     *
+     * @param origin    Strahlursprung (Kameraposition)
      * @param direction Strahlrichtung (normalisiert)
      */
     public void checkHit(Vector3f origin, Vector3f direction) {
-        List<Target> targets = targetManager.getTargets();
-        boolean hitRegistered = false;
-        Target hitTarget = null;
-        Vector3f hitCenter = null;
+        Target closestTarget = null;
+        Vector3f closestHitCenter = null;
+        Vector3f actualHitPoint = null;
+        boolean isHeadHit = false;
+        float minT = Float.MAX_VALUE;
 
-        // 1. Treffererkennung: Finde das getroffene Ziel (falls vorhanden)
-        for (Target target : targets) {
+        // 1. Finde nächstes gültiges Ziel
+        for (Target target : targetManager.getTargets()) {
             if (target.isHit()) continue;
 
-            // Kopf-Treffer prüfen
-            if (intersectsSphere(origin, direction, target.getHeadPosition(), target.getHeadRadius())) {
-                target.markHit();
-                stats.registerHit(true);
-                hitRegistered = true;
-                hitTarget = target;
-                hitCenter = target.getHeadPosition();
-                break;
+            // Kopfprüfung (immer über Boden)
+            Float tHead = intersectSphereT(origin, direction,
+                    target.getHeadPosition(), target.getHeadRadius());
+            if (tHead != null && tHead < minT) {
+                minT = tHead;
+                closestTarget = target;
+                closestHitCenter = target.getHeadPosition();
+                actualHitPoint = calculateHitPoint(origin, direction, tHead);
+                isHeadHit = true;
             }
 
-            // Körper-Treffer prüfen
-            if (intersectsSphere(origin, direction, target.getPosition(), target.getBodyRadius())) {
-                target.markHit();
-                stats.registerHit(false);
-                hitRegistered = true;
-                hitTarget = target;
-                hitCenter = target.getPosition();
-                break;
+            // Körperprüfung mit Bodenbedingung
+            Float tBody = intersectSphereT(origin, direction,
+                    target.getPosition(), target.getBodyRadius());
+            if (tBody != null && tBody < minT) {
+                Vector3f bodyHitPoint = calculateHitPoint(origin, direction, tBody);
+
+                // WICHTIG: Nur Treffer oberhalb des Bodens zählen (y >= 0)
+                if (bodyHitPoint.y >= 0) {
+                    minT = tBody;
+                    closestTarget = target;
+                    closestHitCenter = target.getPosition();
+                    actualHitPoint = bodyHitPoint;
+                    isHeadHit = false;
+                }
             }
         }
 
-        // 2. Offset-Berechnung für die Heatmap
-        if (hitRegistered) {
-            // Für Treffer: Offset zum tatsächlichen Trefferpunkt berechnen
-            Vector3f targetCenter = hitTarget.getPosition();
-            HeatmapValues hitOffset = heatmapCheck.checkShot(direction, targetCenter, origin);
+        // 2. Verarbeite Treffer/Fehlschuss (Rest bleibt ähnlich)
+        if (closestTarget != null) {
+            closestTarget.markHit();
+            stats.registerHit(isHeadHit);
+
+            // Für Heatmap: Zentrum des getroffenen Bereichs (Kopf/Körper)
+            HeatmapValues hitOffset = heatmapCheck.checkShot(
+                    direction,
+                    closestHitCenter,
+                    origin
+            );
             hitOffset.setHitStatus(true);
             stats.hadd(hitOffset);
+
         } else {
-            // Für Fehlschüsse: Besten Offset finden
+            // Fehlschussbehandlung unverändert
             stats.registerMiss();
-            HeatmapValues bestMiss = findClosestMiss(origin, direction, targets);
+            HeatmapValues bestMiss = findClosestMiss(origin, direction, targetManager.getTargets());
             if (bestMiss != null) {
                 bestMiss.setHitStatus(false);
                 stats.hadd(bestMiss);
@@ -97,23 +113,35 @@ public class Raycasting {
     }
 
     /**
-     * Prüft Schnittpunkt zwischen Strahl und Kugel.
-     * @param origin Strahlursprung
-     * @param dir Strahlrichtung (muss normalisiert sein)
-     * @param center Kugelmittelpunkt
-     * @param radius Kugelradius
-     * @return true wenn Schnittpunkt existiert und vor der Kamera liegt
+     * Berechnet den Schnittpunkt zwischen Strahl und Kugel
+     *
+     * @return t-Wert (Entfernung entlang des Strahls) oder null wenn kein Treffer
      */
-    private boolean intersectsSphere(Vector3f origin, Vector3f dir, Vector3f center, float radius) {
+    private Float intersectSphereT(Vector3f origin, Vector3f dir, Vector3f center, float radius) {
         Vector3f oc = new Vector3f(origin).sub(center);
         float a = dir.dot(dir);
         float b = 2.0f * oc.dot(dir);
         float c = oc.dot(oc) - radius * radius;
         float discriminant = b * b - 4 * a * c;
 
-        if (discriminant < 0) return false;
+        if (discriminant < 0) return null;
 
-        float t = (-b - (float)Math.sqrt(discriminant)) / (2 * a);
-        return t >= 0;
+        float sqrtDisc = (float) Math.sqrt(discriminant);
+        float t1 = (-b - sqrtDisc) / (2 * a);
+        float t2 = (-b + sqrtDisc) / (2 * a);
+
+        // Wähle kleinste positive Lösung
+        float t = Float.MAX_VALUE;
+        if (t1 >= 0) t = Math.min(t, t1);
+        if (t2 >= 0) t = Math.min(t, t2);
+
+        return (t < Float.MAX_VALUE) ? t : null;
+    }
+
+    /**
+     * Berechnet den tatsächlichen Trefferpunkt
+     */
+    private Vector3f calculateHitPoint(Vector3f origin, Vector3f dir, float t) {
+        return new Vector3f(dir).mul(t).add(origin);
     }
 }
