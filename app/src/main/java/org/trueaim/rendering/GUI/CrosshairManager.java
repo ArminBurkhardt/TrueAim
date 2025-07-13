@@ -10,6 +10,13 @@ import static org.lwjgl.system.MemoryUtil.memAllocInt;
 /**
  * Verwalter für das Fadenkreuz im Spiel.
  * Bietet verschiedene vordefinierte Fadenkreuz-Designs und zeichnet sie auf dem Bildschirm.
+ * Die Designs sind:
+ * - PLUS: Einfache Kreuzform
+ * - DOT: Kreisförmiges Fadenkreuz
+ * - SMALL PLUS: Kleines Kreuz mit leerer Mitte
+ * - VERY SMALL PLUS: Sehr kleines Kreuz
+ * - PINK: Pink.
+ * Die Größe und Farbe werden basierend auf Fenstergröße angepasst.
  */
 
 public class CrosshairManager {

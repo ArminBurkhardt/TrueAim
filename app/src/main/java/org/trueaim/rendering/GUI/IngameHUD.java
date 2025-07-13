@@ -47,7 +47,7 @@ public class IngameHUD {
     private Crosshairs crosshair;
     private CrosshairManager crosshairManager;
     private ArrayList<NVGPaint> paints = new ArrayList<>(); // Liste von NVGPaints
-    private HashMap<String, Integer> images = new HashMap<>(); // Map für Bilder
+    private HashMap<String, Integer> images = new HashMap<>(); // Map zum speichern der Bilder
     private String drawWeaponOverlayMode = "SIMPLE"; // Overlay-Modus für Waffe ("OFF": Aus, "SIMPLE": Zeichnung (hehe), "FULL": Ingame Aufnahme)
     private double mouseX, mouseY;
     private double dx, dy, dr; // Mausbewegung Differenz => für Moving Average
@@ -82,6 +82,11 @@ public class IngameHUD {
         return equippedWeapon;
     }
 
+    /**
+     * Initialisiert das HUD mit den notwendigen Ressourcen.
+     * @param window Das Fenster, in dem das HUD gerendert wird.
+     * @throws Exception
+     */
     public void init(Window window) throws Exception {
         this.vg = window.antialiasing ? nvgCreate(NVG_ANTIALIAS | NVG_STENCIL_STROKES) : nvgCreate(NVG_STENCIL_STROKES);
         if (this.vg == NULL) {
@@ -104,6 +109,10 @@ public class IngameHUD {
         _loadAssets();
     }
 
+    /**
+     * Lädt die benötigten Assets (Bilder, etc.) für das HUD.
+     * @throws Exception
+     */
     private void _loadAssets() throws Exception {
         // Bilder laden
         try {
@@ -413,6 +422,16 @@ public class IngameHUD {
         }
     }
 
+    /**
+     * Zeichnet das Waffenoverylay basierend auf dem aktuellen Modus.
+     * Mögliche Modi:
+     * - "OFF": Overlay ist ausgeschaltet
+     * - "SIMPLE": Zeigt eine einfache Darstellung der Waffe
+     * - "FULL": Zeigt eine detaillierte Ingame-Darstellung der Waffe
+     * Movement der Maus wird auf die Waffe übertragen, um Spielerbewegung, ... zu simulieren.
+     * Recoil wird ebenfalls berücksichtigt, um eine realistische Darstellung zu ermöglichen. (wird manuell gesetzt in anderer Funktion)
+     * @param window Das Fenster, in dem das Overlay gezeichnet wird.
+     */
     private void drawWeaponOverlay(Window window) {
         if (equippedWeapon != null) {
             int imageBuffer = 0;
@@ -457,6 +476,10 @@ public class IngameHUD {
         }
     }
 
+    /**
+     * Zeichnet den Credit für das Spiel.
+     * @param window Das Fenster, in dem der Credit gezeichnet wird.
+     */
     private void credit(Window window) {
         // Credit für das Spiel
         float w = window.getWidth();
@@ -477,11 +500,22 @@ public class IngameHUD {
         }
     }
 
+    /**
+     * Trunkiert einen double-Wert auf eine bestimmte Anzahl von Dezimalstellen.
+     * @param value Der zu trunkierten Wert.
+     * @param decimalPlaces Die Anzahl der Dezimalstellen, auf die der Wert getrimmt werden soll.
+     * @return Der getrunkierte Wert.
+     */
     private double trunc(double value, int decimalPlaces) {
         double scale = Math.pow(10, decimalPlaces);
         return Math.floor(value * scale) / scale;
     }
 
+    /**
+     * Wendet den Rückstoßvektor auf die aktuelle Mausbewegung an.
+     * Der Vektor wird skaliert, um eine realistische Rückstoßwirkung zu erzielen.
+     * @param vector Der Rückstoßvektor, der auf die Mausbewegung angewendet wird.
+     */
     public void applyRecoilVector(Vector2f vector) {
         if (!equippedWeapon.isActive()) return;
         double recoilX = vector.x * 10;
@@ -490,18 +524,28 @@ public class IngameHUD {
         // Recoil anwenden
         dx = recoilX + dx;
         dy = recoilY + dy;
-        dr = Math.sqrt(dx * dx + dy * dy) / RECOIL_SCALING; // Berechne die Rotation basierend auf der Verschiebung
+        dr = Math.sqrt(dx * dx + dy * dy) / RECOIL_SCALING; // Berechne die Rotation basierend auf der Verschiebung, mehr oder weniger arbiträr gewählt
     }
 
+    /**
+     * Aktualisiert die Mausposition im HUD.
+     * Diese Methode wird aufgerufen, um die aktuelle Mausposition zu erhalten und zu verwenden.
+     * @param window Das Fenster, in dem das HUD gerendert wird.
+     */
     private void updateMousePos(Window window) {
         glfwGetCursorPos(window.getHandle(), posx, posy);
     }
 
-
+    // HUD rendern und stats standardmäßig oben rechts rendern
     public void render(Window window) {
         this.render(window, OverlaySetting.TOP_RIGHT);
     }
 
+    /**
+     * Rendert das HUD im angegebenen Fenster.
+     * @param window Das Fenster, in dem das HUD gerendert wird.
+     * @param orientation Die Ausrichtung des Overlays (z.B. TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT).
+     */
     public void render(Window window, OverlaySetting orientation) {
         nvgBeginFrame(vg, window.getWidth(), window.getHeight(), 1.0f);
         calculateFPS();
@@ -564,6 +608,17 @@ public class IngameHUD {
     }
 
 
+    /**
+     * Zeichnet ein Bild aus dem ByteBuffer an der angegebenen Position mit Rotation.
+     * @param window Das Fenster, in dem das Bild gezeichnet wird.
+     * @param image Der ByteBuffer, der das Bild enthält.
+     * @param x Die x-Position des Bildes.
+     * @param y Die y-Position des Bildes.
+     * @param width Die Breite des Bildes.
+     * @param height Die Höhe des Bildes.
+     * @param alpha Die Transparenz des Bildes (0.0f - 1.0f).
+     * @param rotation Die Rotation des Bildes.
+     */
     private void drawImage(Window window, int image, float x, float y, float width, float height, float alpha, float rotation) {
         if (image == -1) {
             throw new RuntimeException("Could not retrieve image from buffer");
@@ -579,21 +634,45 @@ public class IngameHUD {
         nvgFill(vg);
     }
 
-
+    /**
+     * Setzt das Fadenkreuz für das HUD.
+     * @param crosshair Das Fadenkreuz, das gesetzt werden soll.
+     */
     public void setCrosshair(Crosshairs crosshair) {
         this.crosshair = crosshair;
     }
+    /**
+     * Gibt das aktuell gesetzte Fadenkreuz zurück.
+     * @return Das aktuell gesetzte Fadenkreuz.
+     */
     public Crosshairs getCrosshair() {
         return crosshair;
     }
 
+    /**
+     * Setzt den Modus für das Waffenoverylay.
+     * Mögliche Modi:
+     * - "OFF": Overlay ist ausgeschaltet
+     * - "SIMPLE": Zeigt eine einfache Darstellung der Waffe
+     * - "FULL": Zeigt eine detaillierte Ingame-Darstellung der Waffe
+     * @param mode Der Modus, der gesetzt werden soll.
+     */
     public void setDrawWeaponOverlayMode(String mode) {
         this.drawWeaponOverlayMode = mode;
     }
+    /**
+     * Gibt den aktuellen Modus für das Waffenoverylay zurück.
+     * @return Der aktuelle Modus für das Waffenoverylay.
+     */
     public String getDrawWeaponOverlayMode() {
         return drawWeaponOverlayMode;
     }
 
+
+    /**
+     * Berechnet die FPS (Frames per Second) basierend auf der Zeit seit der letzten Aktualisierung.
+     * Diese Methode wird aufgerufen, um die FPS zu berechnen und zu aktualisieren.
+     */
     private void calculateFPS() {
         long currentTime = System.nanoTime();
         frameCount++;
@@ -604,6 +683,10 @@ public class IngameHUD {
         }
     }
 
+
+    /**
+     * Bereinigt die Ressourcen des HUD.
+     */
     public void cleanup() {
         nvgDelete(vg);
         if (posx != null) {

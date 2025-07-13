@@ -30,6 +30,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
  * StatGUI ist eine Klasse, die ein GUI für Statistiken und Einstellungen im Spiel bereitstellt.
  * Hauptsächlich Buttons zum Einstellen von Crosshair/Targets/Waffe/...
  * Die Klasse verwaltet auch die Sichtbarkeit des GUIs und zeichnet es auf dem Bildschirm.
+ * Das GUI lässt sich über die Escape-Taste öffnen und schließen, bzw. über den X Button oben rechts.
  */
 
 public class StatGUI {
@@ -101,6 +102,11 @@ public class StatGUI {
     }
 
 
+    /**
+     * Initialisiert die NanoVG-Bibliothek und lädt die Schriftart.
+     * @param window
+     * @throws Exception
+     */
     public void init(Window window) throws Exception {
         this.vg = window.antialiasing ? nvgCreate(NVG_ANTIALIAS | NVG_STENCIL_STROKES) : nvgCreate(NVG_STENCIL_STROKES);
         if (this.vg == NULL) {
@@ -125,6 +131,10 @@ public class StatGUI {
 
     }
 
+    /**
+     * Setzt die Werte für die GUI-Elemente basierend auf der Fenstergröße.
+     * @param window
+     */
     private void setValues(Window window) {
         // Setzt die Werte für die Position und Größe der Buttons (abgeleitet von der Fenstergröße)
         windowWidth = window.getWidth();
@@ -151,9 +161,15 @@ public class StatGUI {
         plots = new ArrayList<Plot>();
 
         // Erzeugt die Buttons und fügt sie der Liste hinzu
+
+        // ///////////////////////////
+        // Quit-Button
         Button b1 = new Button(windowWidth-offset1 - buttonWidth, offset1*3, buttonWidth, buttonHeight, "Quit", window::forceClose, FONT_NAME); // Quit-Button
         buttons.add(b1);
+        // ///////////////////////////
 
+
+        // ///////////////////////////
         // Target Sektion
         Button b2 = new Button(offset1 + offset2, offset1 + offset2 + offset3, buttonWidth, buttonHeight, "Static Targets", this::_setStaticTargets, FONT_NAME);
         buttons.add(b2);
@@ -161,7 +177,10 @@ public class StatGUI {
         buttons.add(b3);
         Button b4 = new Button(offset1 + offset2*3 + buttonWidth*2, offset1 + offset2 + offset3, buttonWidth, buttonHeight, "Random Targets", this::_setRandomTargets, FONT_NAME);
         buttons.add(b4);
+        // ///////////////////////////
 
+
+        // ///////////////////////////
         // Crosshair Sektion
         Button b5 = new Button(offset1 + buttonWidth*5 + offset2, offset1 + offset2 + offset3, buttonWidth, buttonHeight, "Default", this::_setDefaultCrosshair, FONT_NAME);
         buttons.add(b5);
@@ -178,25 +197,32 @@ public class StatGUI {
         buttons.add(b19);
         Button b20 = new Button((int) (offset1 + buttonWidth*6.5f + offset2), offset1 + offset2*2 + offset3 + buttonHeight, buttonWidth/2, buttonWidth/2, "", this::_setCrosshair4, FONT_NAME, this::_crosshair4);
         buttons.add(b20);
+        // ///////////////////////////
 
 
+        // ///////////////////////////
         // Statistiken Sektion
-
         Button b10 = new Button(offset1*2, windowHeight / 2 + offset1, buttonWidth, buttonHeight, "Reset Stats", this::_resetStats, FONT_NAME);
         buttons.add(b10);
+        // ///////////////////////////
 
 
+        // ///////////////////////////
         // Button zum Schlie0en des GUIs
         Button b11 = new Button(windowWidth-offset1 - buttonWidth/4, offset1, buttonWidth/4, buttonWidth/4, "X", this::disable, FONT_NAME);
         buttons.add(b11);
+        // ///////////////////////////
 
+
+        // ///////////////////////////
         // Overlay Mode Button
         Button b18 = new Button(offset1 + windowWidth - offset1*3 - buttonWidth*2 + offset3*2, windowHeight / 2 + offset3*4, buttonWidth, buttonHeight, "SIMPLE", this::_overlayModeToggle, FONT_NAME);
         overlayModeButton = b18;
         buttons.add(b18);
+        // ///////////////////////////
 
 
-
+        // ///////////////////////////
         // Gun Sektion
         Button b12 = new Button(offset1 + offset3*2, (int) (offset1 + offset2 + buttonHeight * 4.5f + offset2 + offset3*2), buttonWidth, buttonHeight, "TOGGLE", this::_recoilToggle, FONT_NAME, true);
         // Standardmäßig ist Recoil aktiviert
@@ -205,12 +231,17 @@ public class StatGUI {
         buttons.add(b12);
         this.recoilButton = b12; // Speichert den Recoil-Button für späteren Zugriff
 
+
         Button b17 = new Button(offset1 + offset3*3 + buttonWidth, (int) (offset1 + offset2 + buttonHeight * 4.5f + offset2 + offset3*2), buttonWidth, buttonHeight, "TOGGLE", this::_infiniteAmmoToggle, FONT_NAME, true);
         b17.setPressed(false);
         this.hasInfiniteAmmo = false; // Standardmäßig ist unendliche Munition deaktiviert
         buttons.add(b17);
+        // ///////////////////////////
 
+
+        // ///////////////////////////
         // User Sektion
+        // Sensitivität
         Button b13 = new Button((int) (buttonWidth * 4.5f + offset1 - buttonWidth * 1f - offset1*2 + offset3), (int) (offset1 + offset2 + buttonHeight * 4.5f + offset2 + offset3), buttonHeight, buttonHeight, "-", this::_decreaseSensitivity, FONT_NAME);
         buttons.add(b13);
         this.sensDecreaseButton = b13;
@@ -218,14 +249,17 @@ public class StatGUI {
         buttons.add(b14);
         this.sensIncreaseButton = b14;
 
+        // FOV
         Button b15 = new Button((int) (buttonWidth * 4.5f + offset1 - buttonWidth * 1f - offset1*2 + offset3), (int) (offset1 + offset2 + buttonHeight * 4.5f + offset2 + offset3+2 + buttonHeight), buttonHeight, buttonHeight, "-", this::_decreaseFOV, FONT_NAME);
         buttons.add(b15);
         this.fovDecreaseButton = b15;
         Button b16 = new Button((int) (buttonWidth * 4.5f + offset1 - buttonWidth * 1f - offset1*2 + buttonHeight + offset3*2 + offset2), (int) (offset1 + offset2 + buttonHeight * 4.5f + offset2 + offset3+2 + buttonHeight), buttonHeight, buttonHeight, "+", this::_increaseFOV, FONT_NAME);
         buttons.add(b16);
         this.fovIncreaseButton = b16;
+        // ///////////////////////////
 
 
+        // ///////////////////////////
         // Plots Sektion
         float[][] placeholderData = new float[][] {{1, 1}, {-1, -1}};
         // int[][] placeholderColors = new int[][] {{0x0, 0x0, 0xff, 0xff}, {0x0, 0xf0, 0x00, 0xff}}; // Beispiel-Daten für die Plots
@@ -236,8 +270,8 @@ public class StatGUI {
         heatmapPlot = plot1; // Speichert den Heatmap-Plot für späteren Zugriff
         plot1.setForcedMaxX(plotMax); // Setzt den maximalen X-Wert für die Heatmap
         plot1.setForcedMaxY(plotMax); // Setzt den maximalen Y-Wert für die Heatmap
-        plot1.setUseTrueCenter(true);
-
+        plot1.setUseTrueCenter(true); // Zentriert die Heatmap auf den Ursprung (0,0), der mittig liegt
+        // ///////////////////////////
 
 
 
@@ -313,7 +347,9 @@ public class StatGUI {
         this.hasInfiniteAmmo = !this.hasInfiniteAmmo; // Toggle für unendliche Munition
     }
 
-    // Overlay Mode Toggle
+    /**
+     * Toggled den Overlay-Modus für das Fadenkreuz.
+     */
     private void _overlayModeToggle() {
         String mode = overlayRenderer.getIngameHUD().getDrawWeaponOverlayMode();
         switch (mode) {
@@ -371,14 +407,26 @@ public class StatGUI {
         }
         fovIncreaseButton.enable();
     }
+
+    /**
+     * Gibt das aktuelle FOV der Kamera zurück.
+     * @return Das aktuelle FOV als int-Wert.
+     */
     private int _getFOV() {
         return renderer.getFOV();
     }
+    /**
+     * Gibt die aktuelle Sensitivität des Eingabemangers zurück.
+     * @return Die aktuelle Sensitivität als float-Wert.
+     */
     private float _getSensitivity() {
         return inputManager.getSensitivity();
     }
 
 
+    /**
+     * Updated den Plot mit den aktuellen Heatmap-Werten.
+     */
     private void updatePlot() {
         List<HeatmapValues> heatmapvals = statTracker.getHeatmapValues();
 
@@ -413,7 +461,10 @@ public class StatGUI {
     }
 
 
-
+    /**
+     * Alle folgenden Methoden sind für das Zeichnen des GUIs zuständig.
+     * Jede Methode zeichnet einen bestimmten Abschnitt des GUIs.
+     */
 
     // Zeichnet den Hintergrund des GUIs (grautransparent)
     private void drawBackground(Window window) {
@@ -486,6 +537,10 @@ public class StatGUI {
 
     }
 
+    /**
+     * Zeichnet die User-Sektion des GUIs.
+     * Diese Sektion enthält Einstellungen für Sensitivität und FOV.
+     */
     private void drawUserSection() {
         // Hintergrund
         float width = buttonWidth * 1f + offset1*2f;
@@ -525,7 +580,10 @@ public class StatGUI {
     }
 
 
-    // Zeichnet die Statistiken-Sektion des GUIs
+    /**
+     * Zeichnet die Statistiken-Sektion des GUIs.
+     * Diese Sektion enthält Informationen über die Schussstatistiken.
+     */
     private void drawStatSection() {
         // Hintergrund
         nvgBoxGradient(vg, offset1, windowHeight / 2f, windowWidth - offset1*4 - buttonWidth*2, windowHeight / 2f - offset1, r * 2, f, rgba(0x1c, 0x7e, 0x80, 255, colorA), rgba(0x0a, 0x5b, 0x69, 240, colorB), paint);
@@ -596,6 +654,9 @@ public class StatGUI {
 
     }
 
+    /* Zeichnet die Extra-Sektion des GUIs
+     * Diese Sektion enthält zusätzliche Informationen oder Einstellungen.
+     */
     private void drawExtraSection() {
         // Hintergrund
         nvgBoxGradient(vg, offset1 + windowWidth - offset1*3 - buttonWidth*2 , windowHeight / 2f, offset1 + buttonWidth*2, windowHeight / 2f - offset1, r * 2, f, rgba(0x1c, 0x7e, 0x80, 255, colorA), rgba(0x0a, 0x5b, 0x69, 240, colorB), paint);
@@ -635,6 +696,7 @@ public class StatGUI {
 
     /**
      * Rendert das HUD, wenn es sichtbar ist.
+     * Diese Methode wird in jedem Frame aufgerufen, um das HUD zu aktualisieren und zu rendern.
      * @param window Das Fenster, in dem das HUD gerendert wird.
      */
     public void render(Window window) {
@@ -668,34 +730,62 @@ public class StatGUI {
         nvgEndFrame(vg); // Frame beenden
     }
 
-
+    /**
+     * Aktiviert das GUI.
+     * Diese Methode zeigt das GUI an und ermöglicht die Interaktion.
+     */
     public void enable() {
-        visible = true; // HUD anzeigen
+        visible = true; // GUI anzeigen
     }
+    /**
+     * Deaktiviert das GUI.
+     * Diese Methode versteckt das GUI, ohne es zu löschen.
+     */
     public void disable() {
-        visible = false; // HUD verstecken
+        visible = false; // GUI verstecken
     }
+    /**
+     * Überprüft, ob das GUI sichtbar ist.
+     * @return true, wenn das GUI sichtbar ist, sonst false.
+     */
     public boolean isVisible() {
-        return visible; // Sichtbarkeit des HUDs zurückgeben
+        return visible; // Sichtbarkeit des GUIs zurückgeben
     }
-
+    /**
+     * Gibt zurück, ob die Waffe Recoil hat.
+     * @return true, wenn die Waffe Recoil hat, sonst false.
+     */
     public boolean getGunHasRecoil() {
         return gunHasRecoil; // Gibt zurück, ob die Waffe Recoil hat
     }
+    /**
+     * Setzt den Recoil-Status der Waffe.
+     * @param gunHasRecoil true, wenn die Waffe Recoil haben soll, sonst false.
+     */
     public void setGunHasRecoil(boolean gunHasRecoil) {
         this.gunHasRecoil = gunHasRecoil; // Setzt den Recoil-Status der Waffe
         recoilButton.setPressed(gunHasRecoil); // Aktualisiert den Recoil-Button
     }
-
+    /**
+     * Gibt zurück, ob unendliche Munition aktiviert ist.
+     * @return true, wenn unendliche Munition aktiviert ist, sonst false.
+     */
     public boolean hasInfiniteAmmo() {
         return hasInfiniteAmmo; // Gibt zurück, ob unendliche Munition aktiviert ist
     }
+    /**
+     * Setzt den Status für unendliche Munition.
+     * @param hasInfiniteAmmo true, wenn unendliche Munition aktiviert werden soll, sonst false.
+     */
     public void setInfiniteAmmo(boolean hasInfiniteAmmo) {
         this.hasInfiniteAmmo = hasInfiniteAmmo; // Setzt den Status für unendliche Munition
     }
 
 
-
+    /**
+     * Gibt Ressourcen frei, die von diesem HUD verwendet werden.
+     * Diese Methode sollte aufgerufen werden, wenn das HUD nicht mehr benötigt wird.
+     */
     public void cleanup() {
         nvgDelete(vg);
         if (posx != null) {
