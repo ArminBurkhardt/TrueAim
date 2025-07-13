@@ -4,7 +4,6 @@ import static org.lwjgl.opengl.GL11.*;
 /**
  * Rendert einfache Kugeln
  */
-//TODO maybe löschen wenn  Targets verbessert werden, muss aber nicht sein
 public class SphereRenderer {
     private final int displayListId;  // OpenGL-Display-List-ID
 

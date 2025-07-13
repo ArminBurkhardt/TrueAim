@@ -16,6 +16,9 @@ import static org.lwjgl.openal.AL10.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 import java.io.File;
 
+//DISCLAIMER: Der Code ist zu großen Teilen aus dem in README verlinkten Tutorial übernommen.
+//und wurde nur von mir kommentiert und angepasst
+
 /**
  * Repräsentiert einen OpenAL-Soundpuffer.
  * Lädt Audiodateien (OGG Vorbis Format) und speichert sie in OpenAL-Buffern.

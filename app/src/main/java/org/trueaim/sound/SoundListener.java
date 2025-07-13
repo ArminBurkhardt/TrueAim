@@ -4,6 +4,9 @@ package org.trueaim.sound;
 import org.joml.Vector3f;
 import static org.lwjgl.openal.AL10.*;
 
+//DISCLAIMER: Der Code ist zu großen Teilen aus dem in README verlinkten Tutorial übernommen.
+//und wurde nur von mir kommentiert und angepasst
+
 /**
  * Repräsentiert den Hörer in der 3D-Audioumgebung.
  * Es gibt immer genau einen Hörer (den Spieler).

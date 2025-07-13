@@ -5,10 +5,6 @@ import org.joml.Vector2f;
  * Definiert Rückstoßmuster für Waffen.
  * Speichert vordefinierte Muster für realistischen Waffenrückstoß.
  */
-
-/**TODO Rückstoß erhöhen, (vielleicht erst navchdem auto fire implementiert + getestet)
- * TODO wenn unterschiedliche Waffen, vielleicht dies Klasse je in WAffenklasse einbinden TBD
- */
 public class RecoilPattern {
     // AK-47 Rückstoßmuster (x: horizontal, y: vertikal)
     private static final Vector2f[] AK47_PATTERN = {

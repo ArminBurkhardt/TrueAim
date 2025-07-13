@@ -11,14 +11,13 @@ import java.util.List;
  * - Kopftrefferquote
  * - Schussfrequenz
  */
-//TODO testen (nach ändern von Waffen) (v.a. rpm)
 
 public class StatTracker {
     private int shotsFired = 0;      // Gesamtschüsse
     private int hits = 0;            // Erfolgreiche Treffer
     private int misses = 0;          // Fehlschüsse
     private int headshots = 0;       // Kopftreffer
-    private int reloads = 0;         // Reloads, ka ob interessant vielleicht entfernen//TODO
+    private int reloads = 0;         // Reloads, ka ob interessant vielleicht entfernen
     private final List<Long> shotTimes = new ArrayList<>(); // Zeitpunkte der Schüsse
     private long sessionStartTime = System.currentTimeMillis(); // Spielstartzeit
     private boolean enabled = true;
@@ -94,11 +93,4 @@ public class StatTracker {
         }
     }
 
-
-    //Debgug TODO delete
-    public void fprint(){
-        for (HeatmapValues shot : getHeatmapValues()) {
-            shot.print();
-        }
-    }
 }

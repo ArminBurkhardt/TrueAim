@@ -47,7 +47,6 @@ public class TargetManager {
     public List<Target> getTargets() { return targets; }
 
 
-    // TODO: vllt könntest du nochmal drüberschauen, ob das so passt
 
     public void setTargets(int numMoving, int numStatic) {
         targets.clear(); // Alte Ziele entfernen
@@ -108,7 +107,6 @@ public class TargetManager {
     }
 
     // Innere Klassen für spezielle Zieltypen
-    // TODO eigene Klasse wenn man Targets erweitern will
     private static class MovingTarget extends Target {
         public MovingTarget(Vector3f position, Vector3f velocity) {
             super(position, velocity);
@@ -119,7 +117,6 @@ public class TargetManager {
             super.update(deltaTime);
 
             // Richtungswechsel bei Grenzerreichen
-            //TODO auch abfrage für andere Richtungen falls man Movement anpassen will
             if (getPosition().z > 7 && getVelocity().z > 0) {
                 setVelocity(getVelocity().mul(-1, new Vector3f()));
             }

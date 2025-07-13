@@ -1,5 +1,6 @@
 package org.trueaim;
 
+import org.joml.Vector3f;
 import org.trueaim.entities.targets.Target;
 import org.trueaim.entities.weapons.AK47;
 import org.trueaim.entities.weapons.V9S;
@@ -34,9 +35,10 @@ public class GameEngine {
     private final Raycasting raycaster;     // Treffererkennung
     private final SoundPlayer soundPlayer; // Sound-Manager für Spielereignisse
     private GenericWeapon weapon;              // Spielerwaffe
-    private boolean showFinalStats = false; // Flag für Statistikanzeige TODO delete
     private final StatGUI statGUI; // GUI-Panel für Statistiken
     private final HeatmapCheck heatmapCheck; // Heatmap-Datensammlung
+    private int AKbulletCount = 30; // Standard-Munitionsanzahl für AK-47
+    private int V9SbulletCount = 12; // Standard-Munitionsanzahl für V9S
 
     public GameEngine(Window window, InputManager inputManager, Camera camera) {
         this.window = window;
@@ -54,7 +56,7 @@ public class GameEngine {
         // Eingabecallbacks registrieren
         inputManager.addLeftClickCallback(this::handleShoot);  // Linksklick: Schießen
         inputManager.addRightClickCallback(weapon::onRightPress); // Rechtsklick: Zielfernrohr
-        inputManager.addRkeyCallback(weapon::Reload);      //R-Taste: Nachladen
+        inputManager.addRkeyCallback(this::handleReload);      //R-Taste: Nachladen
         inputManager.addLeftReleaseCallback(weapon::onLeftRelease); // Linke Maustaste loslassen: Waffe abfeuern
         inputManager.addRightReleaseCallback(weapon::onRightRelease); // Rechte Maustaste loslassen: Zielfernrohr deaktivieren
 
@@ -92,6 +94,12 @@ public class GameEngine {
         this.weapon = weapon; // Setzt die Statistiken der neuen Waffe
         this.overlayRenderer.getIngameHUD().setEquippedWeapon(weapon); // Aktualisiert die HUD-Waffe
         // this.statGUI.setStatTracker(tracker); // Aktualisiert die Statistik-UI
+
+        if (weapon instanceof AK47) {
+            weapon.setBulletCount(AKbulletCount); // Setzt die Munitionsanzahl der AK47
+        } else if (weapon instanceof V9S) {
+            weapon.setBulletCount(V9SbulletCount); // Setzt die Munitionsanzahl der V9S
+        }
     }
 
     /**
@@ -111,7 +119,18 @@ public class GameEngine {
             weapon.onLeftPress();  // Waffenlogik aktivieren
             overlayRenderer.getIngameHUD().applyRecoilVector(weapon.getRecoil()); // Recoil auf HUD anwenden
         }
+        if (!weapon.hasAmmo() && !statGUI.isVisible()) {
+            soundPlayer.play(SoundPlayer.GUN_EMPTY); // Leeren Schuss-Sound abspielen
+        }
     }
+
+    /**
+     * Verarbeitet Nachladeereignisse.
+     */
+    private void handleReload() {
+        weapon.Reload();
+    }
+
 
     private void continueHandleShoot() {
         if (weapon.hasAmmo() && weapon.isFullAuto() && weapon.allowedToShoot() && weapon.wantsToShoot()) {
@@ -161,8 +180,6 @@ public class GameEngine {
         }
 
         // Nach Spielende
-        showFinalStats = true;  //Grade useless, maybe needed for render //TODO delete
-        printFinalStatistics(); // Statistik ausgeben TODO delete
         window.cleanup();       // Ressourcen freigeben
         statGUI.cleanup();      // Statistik-UI aufräumen
         overlayRenderer.cleanup(); // UI-Renderer aufräumen
@@ -181,28 +198,16 @@ public class GameEngine {
     }
 
     public void setWeaponAK47() {
+        V9SbulletCount = weapon.getBulletCount(); // Speichert die aktuelle V9S-Munitionsanzahl
         setWeapon(new AK47(camera, renderer, soundPlayer)); // Setzt die Waffe auf AK47
     }
 
     public void setWeaponV9S() {
-        setWeapon(new V9S(camera, renderer)); // Setzt die Waffe auf V9S
+        if (weapon instanceof V9S) {
+            return; // Keine Änderung, wenn die Waffe bereits V9S ist
+        }
+        AKbulletCount = weapon.getBulletCount(); // Speichert die aktuelle AK47-Munitionsanzahl
+        setWeapon(new V9S(camera, renderer, soundPlayer)); // Setzt die Waffe auf V9S
     }
 
-    /**
-     * Gibt Spielstatistiken in der Konsole aus.
-     */
-    //TODO entfernen wenn man Statistiken am Ende dann rendert
-    private void printFinalStatistics() {
-        StatTracker stats = weapon.getStats();
-        System.out.println("\n=== FINALE STATISTIKEN ===");
-        System.out.printf("Genauigkeit: %.1f%%\n", stats.getAccuracy());
-        System.out.printf("Kopftreffer: %d/%d (%.1f%%)\n",
-                stats.getHeadshots(), stats.getHits(), stats.getHeadshotRate());
-        System.out.printf("Schüsse: %d | Treffer: %d | Fehlschüsse: %d\n",
-                stats.getShotsFired(), stats.getHits(), stats.getMisses());
-        System.out.printf("Reloads: %d\n", stats.getReloads());
-        System.out.printf("Schüsse/Minute: %.1f\n", stats.getShotsPerMinute());
-        System.out.println("=========================");
-        stats.fprint();//TODO delete
-    }
 }

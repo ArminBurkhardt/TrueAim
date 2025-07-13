@@ -3,14 +3,12 @@ import org.joml.Vector2f;
 import org.trueaim.shootable.Shootable;
 import org.trueaim.stats.StatTracker;
 
-//TODO Waffen laden nach wenn man sie wechselt, sollte obviously nicht so sein
 
 /**
  * Basisklasse für alle Waffen.
  * Implementiert grundlegende Schussfunktionalität.
  */
 
-//TODO Weapons komplett überarbieten (maybe shootable löschen)
 public abstract class GenericWeapon implements Shootable {
     protected StatTracker stats = new StatTracker(); // Waffenstatistik
     protected int ammo;                // Magazingröße
@@ -24,9 +22,10 @@ public abstract class GenericWeapon implements Shootable {
     public abstract void onLeftPress();
 
     @Override
-    public void onRightPress() {
-        // Standard: Zielfernrohr aktivieren
-        System.out.println("ADS activated");
+    public void onRightPress() {}
+
+    public void setBulletCount(int bulletCount) {
+        this.bulletCount = bulletCount;
     }
 
     public void onRightRelease() {}

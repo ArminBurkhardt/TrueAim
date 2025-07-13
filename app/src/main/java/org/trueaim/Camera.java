@@ -21,7 +21,6 @@ public class Camera {
     private final Vector3f right = new Vector3f(1, 0, 0);   // Rechtsvektor
     // View-Matrix
     private final Matrix4f viewMatrix = new Matrix4f();
-    private boolean firstUpdate = true; // Flag für erste Aktualisierung TODO delete
 
     // Bewegungsmethoden (relativ zur aktuellen Ausrichtung) (beschränkter Bewegungsraum)
     public void moveForward(float dist) {
@@ -72,10 +71,6 @@ public class Camera {
         );
     }
 
-    //Debug Funktion TODO delete
-    public void getRotation(){
-        System.out.println("x :" + rotation.x + " y: " + rotation.y + " z: " + rotation.z);
-    }
 
     /**
      * Aktualisiert die Richtungsvektoren basierend auf der aktuellen Rotation.

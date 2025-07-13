@@ -12,19 +12,18 @@ import javax.swing.*;
  * Verantwortlich für:
  * - Fadenkreuz
  * - Heatmap
- * - Statistiken (später)
+ * - HUD (Head-Up Display)
+ * - Statistiken
  */
 public class OverlayRenderer {
     private final StatTracker stats;
     private final CrosshairRenderer crosshairRenderer;
-    private final HeatmapRenderer heatmapRenderer;
     private final IngameHUD ingameHUD;
     private Crosshairs crosshair;
 
     public OverlayRenderer(StatTracker stats, Window window) {
         this.stats = stats;
         this.crosshairRenderer = new CrosshairRenderer();
-        this.heatmapRenderer = new HeatmapRenderer();
         this.ingameHUD = new IngameHUD(window, stats);
         this.crosshair = Crosshairs.DEFAULT; // Fadenkreuz initialisieren
         this.ingameHUD.setCrosshair(crosshair); // Fadenkreuz im HUD setzen
@@ -33,11 +32,8 @@ public class OverlayRenderer {
     /**
      * Rendert alle UI-Elemente.
      */
-    //TODO heatmap und stats vml nicht hier, aber ammo etc (vml Klasse AmmoRenderer)
-    //TODO maybe Klasse löschen und CrosshairRenderer und AmmoRenderer in GameEngine ausführen (TBD)
     public void render(Window window) {
         crosshairRenderer.render();  // Fadenkreuz
-        heatmapRenderer.render();    // Heatmap (Platzhalter)
         ingameHUD.render(window);
         // Statistik wird nur am Ende angezeigt
     }

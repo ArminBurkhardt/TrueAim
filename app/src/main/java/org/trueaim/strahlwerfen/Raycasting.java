@@ -44,14 +44,12 @@ public class Raycasting {
             if (tHead != null && tHead < minT) {
                 minT = tHead;
                 closestTarget = target;
-                closestHitCenter = target.getHeadPosition();
-                actualHitPoint = calculateHitPoint(origin, direction, tHead);
+                closestHitCenter = target.getPosition();
                 isHeadHit = true;
             }
 
             // Körperprüfung mit Bodenbedingung
-            Float tBody = intersectSphereT(origin, direction,
-                    target.getPosition(), target.getBodyRadius());
+            Float tBody = intersectSphereT(origin, direction, target.getPosition(), target.getBodyRadius());
             if (tBody != null && tBody < minT) {
                 Vector3f bodyHitPoint = calculateHitPoint(origin, direction, tBody);
 
@@ -60,13 +58,12 @@ public class Raycasting {
                     minT = tBody;
                     closestTarget = target;
                     closestHitCenter = target.getPosition();
-                    actualHitPoint = bodyHitPoint;
                     isHeadHit = false;
                 }
             }
         }
 
-        // 2. Verarbeite Treffer/Fehlschuss (Rest bleibt ähnlich)
+        // 2. Verarbeite Treffer/Fehlschuss
         if (closestTarget != null) {
             closestTarget.markHit();
             stats.registerHit(isHeadHit);

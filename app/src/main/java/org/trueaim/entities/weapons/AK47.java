@@ -12,14 +12,12 @@ public class AK47 extends GenericWeapon {
     private int consecutiveShots = 0; // Anzahl aufeinanderfolgender Schüsse
     private long lastShotTime = 0;    // Zeitpunkt des letzten Schusses
     private final Camera camera;      // Referenz zur Spielkamera
-    //TODO renderer entfernen, falls nicht für zoom benötigt
     private final Renderer renderer;  //Referenz zu Renderer (für FOV Change)
     protected int ammo = 30;             // Magazingröße
     protected SoundPlayer soundPlayer; // Sound-Manager für Schussgeräusche
     private int bulletCount = 30;           // Aktuelle Munitionsanzahl
     private boolean active = true;      // Aktiviert/Deaktiviert Schießen
     private boolean fullAuto = true;    // Vollautomatischer Modus
-                                        // TODO: später vllt Single Shot Modus hinzufügen oder andere Waffe mit Single Shot Modus hinzufügen
     private boolean hasRecoil = true; // Standard: Waffe hat Rückstoß
     private boolean pressed = false; // Flag für gedrückte Taste
     private int RPM = 600; // Schüsse pro Minute (Standard für AK-47), nur relevant im Vollautomatikmodus
@@ -33,10 +31,17 @@ public class AK47 extends GenericWeapon {
         this.oldFOV = renderer.getFOV(); // Speichert das Standard-FOV für Zoom
     }
 
+
     @Override
     public int getAmmo() { return ammo; }
     @Override
     public int getBulletCount() { return bulletCount; }
+
+    // Setzt die Munitionsanzahl
+    @Override
+    public void setBulletCount(int bulletCount) {
+        this.bulletCount = bulletCount;
+    }
 
     @Override
     public boolean isActive() {
@@ -98,9 +103,9 @@ public class AK47 extends GenericWeapon {
         consecutiveShots = 0; // Schusskette zurücksetzen
         lastShotTime = 0; // Letzten Schusszeitpunkt zurücksetzen
         stats.registerReload(); // Statistik aktualisieren
-        soundPlayer.play(SoundPlayer.RELOAD); // Nachlade-Sound abspielen
+        soundPlayer.play(SoundPlayer.AK_RELOAD); // Nachlade-Sound abspielen
         System.out.println("Tut Tut, Wir haben nachgeladen, Tut Tut");
-        System.out.println("das ist obviously ne Testnachricht, nicht vergessen zu entfernen xd");
+        System.out.println("das ist obviously ne Testnachricht, nicht vergessen zu entfernen xd"); // ← absichtlich noch drin, da wir es witzig fanden xd
     }
 
     //Schusseffekte (Raycasting für Schuss / Ammo überprüfung wird in GameEngine gestartet)
@@ -122,7 +127,7 @@ public class AK47 extends GenericWeapon {
         stats.incrementShotsFired(); // Statistik aktualisieren
         consecutiveShots++;   // Schusszähler erhöhen
         lastShotTime = System.currentTimeMillis(); // Zeit speichern
-        soundPlayer.play(SoundPlayer.SHOOT); // Schuss-Sound abspielen
+        soundPlayer.play(SoundPlayer.AK_SHOOT); // Schuss-Sound abspielen
     }
 
     @Override

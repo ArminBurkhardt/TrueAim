@@ -18,12 +18,4 @@ public class HeatmapValues {
     public void setHitStatus(boolean hitStatus) {
         this.hitStatus = hitStatus;
     }
-    //Debug TODO delete
-    public void print() {
-        System.out.println("HeatmapValues{" +
-                "xOffset=" + xOffset +
-                ", yOffset=" + yOffset +
-                ", hitStatus=" + hitStatus +
-                '}');
-    }
 }

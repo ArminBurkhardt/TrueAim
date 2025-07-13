@@ -15,6 +15,9 @@ import static org.lwjgl.openal.AL10.alDistanceModel;
 import static org.lwjgl.openal.ALC10.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
+//DISCLAIMER: Der Code ist zu großen Teilen aus dem in README verlinkten Tutorial übernommen.
+//und wurde nur von mir kommentiert und angepasst
+
 /**
  * Verwaltet das gesamte Audio-System.
  * Initialisiert OpenAL, verwaltet Soundpuffer und -quellen,

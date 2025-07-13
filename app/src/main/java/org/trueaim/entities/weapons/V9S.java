@@ -2,8 +2,8 @@ package org.trueaim.entities.weapons;
 import org.joml.Vector2f;
 import org.trueaim.Camera;
 import org.trueaim.rendering.Renderer;
+import org.trueaim.sound.SoundPlayer;
 
-// TODO: REFEACTOR & CLEANUP
 
 /**
  * Spezifische Implementierung der V9S-Waffe.
@@ -13,18 +13,21 @@ public class V9S extends GenericWeapon {
     private int consecutiveShots = 0; // Anzahl aufeinanderfolgender Schüsse
     private long lastShotTime = 0;    // Zeitpunkt des letzten Schusses
     private final Camera camera;      // Referenz zur Spielkamera
-    private final Renderer renderer;  //Referenz zu Renderer (für FOV Change)
+    private final Renderer renderer;  //Referenz zu Renderer (für FOV Change) (currently not in use)
     protected int ammo = 12;             // Magazingröße
     private int bulletCount = 12;           // Aktuelle Munitionsanzahl
     private boolean active = true;      // Aktiviert/Deaktiviert Schießen
     private boolean fullAuto = false;    // Single Shot Modus (Standard: Nein, da V9S eine Sniper ist)
     private boolean hasRecoil = true; // Standard: Waffe hat Rückstoß
     private boolean hasInfiniteAmmo = false; // Standard: Waffe hat keine unendliche Munition
+    private SoundPlayer soundPlayer; // Sound-Manager für Schussgeräusche
 
-    public V9S(Camera camera, Renderer renderer) {
+    public V9S(Camera camera, Renderer renderer, SoundPlayer soundPlayer) {
         this.camera = camera;
         this.renderer = renderer;
+        this.soundPlayer = soundPlayer;
     }
+
 
     @Override
     public int getAmmo() { return ammo; }
@@ -64,6 +67,11 @@ public class V9S extends GenericWeapon {
         return bulletCount > 0;
     }
 
+    @Override
+    public void setBulletCount(int bulletCount) {
+        this.bulletCount = bulletCount;
+    }
+
     /**
      * Lädt die Waffe nach.
      * Setzt die Munition auf das Maximum zurück.
@@ -76,6 +84,7 @@ public class V9S extends GenericWeapon {
         bulletCount = ammo; // Setzt die Munition auf das Maximum zurück
         consecutiveShots = 0; // Schusskette zurücksetzen
         lastShotTime = 0; // Letzten Schusszeitpunkt zurücksetzen
+        soundPlayer.play(SoundPlayer.V9S_RELOAD); // Nachlade-Sound abspielen
         stats.registerReload(); // Statistik aktualisieren
     }
 
@@ -93,6 +102,7 @@ public class V9S extends GenericWeapon {
         }
         stats.incrementShotsFired(); // Statistik aktualisieren
         consecutiveShots++;   // Schusszähler erhöhen
+        soundPlayer.play(SoundPlayer.V9S_SHOOT); // Schuss-Sound abspielen
         lastShotTime = System.currentTimeMillis(); // Zeit speichern
     }
 
@@ -101,7 +111,6 @@ public class V9S extends GenericWeapon {
      */
     private void applyRecoil() {
         // Rückstoß für aktuellen Schuss holen
-        // TODO: Anderes Recoil Pattern für V9S
         Vector2f recoil = RecoilPattern.getRecoil(consecutiveShots);
 
         // Rückstoß anwenden:

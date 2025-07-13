@@ -101,7 +101,7 @@ public class Renderer {
      * Rendert den Boden und Wände.
      */
     private void renderFloor() {
-        float d = 25; // Anpassung der Distanz TODO
+        float d = 25; // Anpassung der Distanz
 
         // Boden (grün)
         glColor3f(0.2f, 0.6f, 0.3f);

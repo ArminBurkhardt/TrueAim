@@ -4,6 +4,8 @@ import org.joml.Vector3f;
 import org.trueaim.Camera;
 import org.lwjgl.openal.*;
 
+// DISCLAIMER: Der Code hier ist tatsächlich nicht aus dem Tutorial übernommen xd
+
 /**
  * Zentrale Sound-Steuerung ohne Enums.
  * Bietet typsichere Methoden für alle Sound-Ereignisse.
@@ -13,11 +15,12 @@ public class SoundPlayer {
     private final SoundManager soundManager;
 
     // Sound-Konstanten für bessere Lesbarkeit
-    public static final String SHOOT = "SHOOT";
-    public static final String HIT = "HIT";
-    public static final String HEADSHOT = "HEADSHOT";
-    public static final String RELOAD = "RELOAD";
+    public static final String AK_SHOOT = "AK_SHOOT";
+    public static final String AK_RELOAD = "AK_RELOAD";
     public static final String UI_CLICK = "UI_CLICK";
+    public static final String GUN_EMPTY = "GUN_EMPTY";
+    public static final String V9S_SHOOT = "V9S_SHOOT";
+    public static final String V9S_RELOAD = "V9S_RELOAD";
 
     public SoundPlayer() {
         soundManager = new SoundManager();
@@ -31,16 +34,28 @@ public class SoundPlayer {
     private void initializeSounds() {
         // Schusssound
         //https://freesound.org/people/Cloud-10/sounds/632821/
-        createSound(SHOOT, "shot.ogg", true, false);
+        createSound(AK_SHOOT, "shot.ogg", true, false);
 
         // Nachladesound
         // https://freesound.org/people/ser%C3%B8t%C5%8Dnin/sounds/674742/
-        createSound(RELOAD, "reload.ogg", true, false);
+        createSound(AK_RELOAD, "reload.ogg", true, false);
 
 
         // UI-Sound
         //https://freesound.org/people/el_boss/sounds/677860/
         createSound(UI_CLICK, "ui_click.ogg", true, false);
+
+        // Gun Empty Sound
+        //https://freesound.org/people/KlawyKogut/sounds/154934/
+        createSound(GUN_EMPTY, "gun_empty.ogg",true, false);
+
+        // V9S Schuss-Sound
+        //https://freesound.org/people/LeMudCrab/sounds/163456/
+        createSound(V9S_SHOOT, "v9s_shoot.ogg", true, false);
+
+        // V9S Nachlade-Sound
+        //https://freesound.org/people/Sophia_C/sounds/467182/
+        createSound(V9S_RELOAD, "v9s_reload.ogg", true, false);
     }
 
     /**
@@ -70,6 +85,7 @@ public class SoundPlayer {
      * Spielt einen 3D-Sound an einer bestimmten Position ab.
      * @param soundType Sound-Konstante (z.B. SoundPlayer.HIT)
      * @param position Position im 3D-Raum
+     * currently useless, da alle Sounds von User ausgehen
      */
     public void playAt(String soundType, Vector3f position) {
         soundManager.setSourcePosition(soundType + "_SOURCE", position);

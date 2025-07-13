@@ -14,14 +14,12 @@ import java.util.List;
  * - Mausbewegung
  * - Mausklicks
  */
-//TODO LAufen/ FLiegen gerade für DEbug, ändern (Collision + fester Bereich oder entfernen) (Camera muss auch geändert werden)
-
 public class InputManager {
     private final long windowHandle;  // Fensterreferenz
     private final Camera camera;      // Steuerbare Kamera
     private final boolean[] keyStates = new boolean[GLFW.GLFW_KEY_LAST + 1]; // Tastenstatus
     private boolean mouseLocked = true;  // Mauszeiger eingeschlossen?
-    private float sensitivity = 0.1f;    // Mausempfindlichkeit //TODO maybe option zum anpassen
+    private float sensitivity = 0.1f;    // Mausempfindlichkeit
     private float movementSpeed = 3.0f;  // Bewegungsgeschwindigkeit
     private double lastMouseX, lastMouseY; // Letzte Mausposition
     private boolean firstMouse = true;    // Erste Bewegung?
