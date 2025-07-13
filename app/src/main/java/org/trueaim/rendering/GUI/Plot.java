@@ -1,6 +1,5 @@
 package org.trueaim.rendering.GUI;
 
-//TODO x Werte sind im Plot gespiegelt. KA warum, man könnte sie aber einfach hier mit * -1 noichmal spiegeln
 
 import org.lwjgl.nanovg.*;
 import org.lwjgl.system.MemoryUtil;

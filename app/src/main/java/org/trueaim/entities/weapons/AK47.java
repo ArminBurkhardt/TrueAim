@@ -24,11 +24,13 @@ public class AK47 extends GenericWeapon {
     private boolean pressed = false; // Flag für gedrückte Taste
     private int RPM = 600; // Schüsse pro Minute (Standard für AK-47), nur relevant im Vollautomatikmodus
     private boolean hasInfiniteAmmo = false; // Standard: Waffe hat keine unendliche Munition
+    private int oldFOV = -1; // Standard FOV, wird für Zoom benötigt
 
     public AK47(Camera camera, Renderer renderer, SoundPlayer soundPlayer) {
         this.camera = camera;
         this.renderer = renderer;
         this.soundPlayer = soundPlayer;
+        this.oldFOV = renderer.getFOV(); // Speichert das Standard-FOV für Zoom
     }
 
     @Override
@@ -67,7 +69,7 @@ public class AK47 extends GenericWeapon {
     @Override
     public void onRightRelease() {
         pressed = false; // Taste losgelassen
-        renderer.setFOV(60); // FOV zurücksetzen
+        renderer.setFOV(oldFOV); // FOV zurücksetzen
     }
 
     @Override
@@ -183,6 +185,7 @@ public class AK47 extends GenericWeapon {
     public void onRightPress() {
         super.onRightPress();
         consecutiveShots = 0; // Zielen unterbricht Schusskette
-        renderer.setFOV(40);
+        oldFOV = renderer.getFOV();
+        renderer.setFOV(Math.max(30, oldFOV - 20));
     }
 }

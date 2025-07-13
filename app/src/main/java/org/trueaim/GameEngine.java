@@ -75,6 +75,12 @@ public class GameEngine {
         if (this.weapon.getClass().equals(weapon.getClass())) {
             return; // Keine Änderung, wenn die Waffe bereits aktiv ist
         }
+        // Callbacks entfernen, um Konflikte zu vermeiden
+        inputManager.clearLeftClickCallbacks();
+        inputManager.clearRightClickCallbacks();
+        inputManager.clearLeftReleaseCallbacks();
+        inputManager.clearRightReleaseCallbacks();
+
         StatTracker tracker = getStatTracker();
         weapon.setStats(tracker); // Überträgt die Statistiken der aktuellen Waffe auf die neue Waffe
         weapon.setRecoil(this.weapon.hasRecoil()); // Setzt den Rückstoßstatus der neuen Waffe
@@ -102,7 +108,6 @@ public class GameEngine {
             raycaster.checkHit(camera.getPosition(), camera.getFront()); // Trefferüberprüfung
             weapon.onLeftPress();  // Waffenlogik aktivieren
             overlayRenderer.getIngameHUD().applyRecoilVector(weapon.getRecoil()); // Recoil auf HUD anwenden
-            //TODO maybe move to weapon class. // spielt auch sound ab wenn in UI (maybe mit flag abfrage lösen)
         }
     }
 

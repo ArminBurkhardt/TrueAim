@@ -174,6 +174,10 @@ public class StatGUI {
         buttons.add(b8);
         Button b9 = new Button(offset1 + buttonWidth*5 + offset2, offset1 + offset2*3 + buttonHeight + buttonWidth/2, buttonWidth/2, buttonWidth/2, "", this::_setCrosshair3, FONT_NAME, this::_crosshair3);
         buttons.add(b9);
+        Button b19 = new Button((int) (offset1 + buttonWidth*5.5f + offset2*2), offset1 + offset2*3 + buttonHeight + buttonWidth/2, buttonWidth/2, buttonWidth/2, "", this::_setCrosshair5, FONT_NAME, this::_crosshair5);
+        buttons.add(b19);
+        Button b20 = new Button((int) (offset1 + buttonWidth*6.5f + offset2), offset1 + offset2*2 + offset3 + buttonHeight, buttonWidth/2, buttonWidth/2, "", this::_setCrosshair4, FONT_NAME, this::_crosshair4);
+        buttons.add(b20);
 
 
         // Statistiken Sektion
@@ -269,6 +273,12 @@ public class StatGUI {
     private void _crosshair3() {
         crosshairManager.drawPreset3(vg, (int) (offset1 + buttonWidth*5 + offset2 + buttonWidth / 4f), (int) (offset1 + offset2*3 + buttonHeight + buttonWidth / 4 + buttonWidth/2), windowWidth / 128, 0xff);
     }
+    private void _crosshair4() {
+        crosshairManager.drawPreset4(vg, (int) (offset1 + buttonWidth*6.5f + offset2 + buttonWidth / 4f), (int) (offset1 + offset2*2 + offset3 + buttonHeight + buttonWidth / 4), windowWidth / 128, 0xff);
+    }
+    private void _crosshair5() {
+        crosshairManager.drawPreset3(vg, (int) (offset1 + buttonWidth*5.5f + offset2*2 + buttonWidth / 4f), (int) (offset1 + offset2*3 + buttonHeight + buttonWidth / 4 + buttonWidth/2), windowWidth / 128, rgba(0xf0, 0x1e, 0xf7, 220, colorE));
+    }
 
     private void _setDefaultCrosshair() {
         overlayRenderer.setCrosshair(Crosshairs.DEFAULT);
@@ -282,6 +292,12 @@ public class StatGUI {
     }
     private void _setCrosshair3() {
         overlayRenderer.setCrosshair(Crosshairs.SMALL_PLUS);
+    }
+    private void _setCrosshair4() {
+        overlayRenderer.setCrosshair(Crosshairs.VERY_SMALL_PLUS);
+    }
+    private void _setCrosshair5() {
+        overlayRenderer.setCrosshair(Crosshairs.PINK);
     }
 
     // Methoden der Statistiken
@@ -390,6 +406,9 @@ public class StatGUI {
         // Aktualisiert die Daten des Plots
         heatmapPlot.setData(data);
         heatmapPlot.setDataSingleRGBA(colors);
+
+        // x-Werte invertieren
+        heatmapPlot.scalePoints(-1f, 1f);
 
     }
 
@@ -502,7 +521,6 @@ public class StatGUI {
         nvgFontFace(vg, FONT_NAME);
         nvgText(vg, buttonWidth * 4.5f - buttonWidth * 1f - offset1 + buttonHeight + offset3*2.5f, (int) (offset1 + offset2 + buttonHeight * 5f + offset2+2 + offset3 + buttonHeight), String.format("%d", _getFOV())); // Aktuelles FOV anzeigen
 
-        // TODO: gucken ob die beiden Zahlen aligned sind, wenn nein, dann das untere lieber nehmen
 
     }
 

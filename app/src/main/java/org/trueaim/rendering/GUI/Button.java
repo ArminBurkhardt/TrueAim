@@ -173,6 +173,7 @@ public class Button {
     public void onClick() {
         if (onClickAction != null && isHovered && enabled) {
             onClickAction.run();
+            // TODO: Sound vielleicht
             if (togglable) {
                 isPressed = !isPressed; // Toggle-Zustand umschalten
             }

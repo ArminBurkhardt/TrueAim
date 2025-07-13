@@ -46,7 +46,6 @@ public class InputManager {
 
     public void setStatGUI(StatGUI statGUI) {
         this.statGUI = statGUI; // GUI-Panel für Statistiken setzen
-        this.leftClickCallbacks.add(statGUI::onClick);
     }
 
     public void bindSetWeaponCallbacks(Runnable setAK47Callback, Runnable setV9SCallback) {
@@ -124,6 +123,7 @@ public class InputManager {
             // Linksklick
             if (button == GLFW.GLFW_MOUSE_BUTTON_LEFT && action == GLFW.GLFW_PRESS) {
                 leftClickCallbacks.forEach(Runnable::run);
+                this.statGUI.onClick(); // Klick an StatGUI weiterleiten
             }
             // Rechtsklick
             if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT && action == GLFW.GLFW_PRESS) {
@@ -182,6 +182,21 @@ public class InputManager {
     }
     public void addRkeyCallback(Runnable callback) {
         RkeyCallbacks.add(callback);
+    }
+
+
+    // Callback-Entfernung
+    public void clearLeftClickCallbacks() {
+        leftClickCallbacks.clear();
+    }
+    public void clearRightClickCallbacks() {
+        rightClickCallbacks.clear();
+    }
+    public void clearLeftReleaseCallbacks() {
+        leftReleaseCallbacks.clear();
+    }
+    public void clearRightReleaseCallbacks() {
+        rightRealseCallbacks.clear();
     }
 
 

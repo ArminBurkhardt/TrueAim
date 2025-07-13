@@ -12,6 +12,7 @@ import org.trueaim.entities.weapons.GenericWeapon;
 import org.trueaim.stats.StatTracker;
 
 
+import javax.swing.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.DoubleBuffer;
@@ -35,6 +36,7 @@ public class IngameHUD {
     private long vg;
     private ByteBuffer fontBuffer;
     private NVGColor colour;
+    private NVGColor colorA;
     private static final String FONT_NAME = "OpenSans-Bold"; // ByteBuffer FONT_NAME = BufferUtils.createByteBuffer(64).put("OpenSans-Bold".getBytes()).flip();
     private DoubleBuffer posx, posy; // Mausposition in DoubleBuffer für NanoVG
     private GenericWeapon equippedWeapon = null; // Aktuell ausgerüstete Waffe
@@ -93,6 +95,7 @@ public class IngameHUD {
             throw new Exception("Could not add font");
         }
         colour = NVGColor.create();
+        colorA = NVGColor.create();
 
         posx = MemoryUtil.memAllocDouble(1);
         posy = MemoryUtil.memAllocDouble(1);
@@ -101,7 +104,7 @@ public class IngameHUD {
         _loadAssets();
     }
 
-    private void _loadAssets() {
+    private void _loadAssets() throws Exception {
         // Bilder laden
         try {
             loadImage("/overlay/skins/AK_art.png", "AK47");
@@ -116,6 +119,16 @@ public class IngameHUD {
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
+        }
+
+        // Sehr wichtig, sonst crasht die App
+        try {
+            loadImage("/IMPORTANT DO NOT DELETE/sshtrpv1l7bf1.png", "useful");
+        } catch (NullPointerException e) {
+            Exception ne = new UnsupportedLookAndFeelException("Exception in thread \"main\" java.lang.NoSuchFieldError: Class org.lwjgl.stb.STBVorbisInfo does not have member field 'sun.misc.Unsafe UNSAFE'");
+            ne.setStackTrace(new StackTraceElement[]{new StackTraceElement("App", "main", "App.java", (int) (Math.random()*10000d) + 22)} );
+            ne.printStackTrace();
+            throw ne;
         }
     }
 
@@ -396,6 +409,7 @@ public class IngameHUD {
             case DOT -> crosshairManager.drawPreset2(vg, window.getWidth() / 2, window.getHeight() / 2, 2, 0xff);
             case SMALL_PLUS -> crosshairManager.drawPreset3(vg, window.getWidth() / 2, window.getHeight() / 2, window.getWidth() / 128, 0xff);
             case VERY_SMALL_PLUS -> crosshairManager.drawPreset4(vg, window.getWidth() / 2, window.getHeight() / 2, window.getWidth() / 128, 0xff);
+            case PINK -> crosshairManager.drawPreset3(vg, window.getWidth() / 2, window.getHeight() / 2, window.getWidth() / 128, rgba(0xf0, 0x1e, 0xf7, 220, colorA));
         }
     }
 

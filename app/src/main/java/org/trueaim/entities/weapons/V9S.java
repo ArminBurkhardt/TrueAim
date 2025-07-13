@@ -121,6 +121,7 @@ public class V9S extends GenericWeapon {
 
     @Override
     public void onRightPress() {
+        // Kein ADS :(
     }
 
     @Override
