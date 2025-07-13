@@ -184,6 +184,7 @@ public class IngameHUD {
         float d2 = 2f;
 
         // Hitmarker zeichnen
+        NVGColor color = (crosshair == Crosshairs.PINK) ? rgba(0xf0, 0x1e, 0xf7, 220, colorA) : rgba(0xff, 0xff, 0xff, 200, colour);
         nvgBeginPath(vg);
         nvgStrokeWidth(vg, 2.0f);
         nvgMoveTo(vg, x - d, y - d);
@@ -194,7 +195,7 @@ public class IngameHUD {
         nvgLineTo(vg, x + d/d2, y - d/d2);
         nvgMoveTo(vg, x - d, y + d);
         nvgLineTo(vg, x - d/d2, y + d/d2);
-        nvgStrokeColor(vg, rgba(0xff, 0xff, 0xff, 200, colour));
+        nvgStrokeColor(vg, color);
         nvgStroke(vg);
         nvgClosePath(vg);
     }
@@ -205,7 +206,7 @@ public class IngameHUD {
         int x = 0;
         int y = 0;
         int w = window.getWidth() / 8;
-        int h = window.getHeight() / 4;
+        int h = window.getHeight() / 6;
         float fontSize = window.getWidth() / 102f; // Schriftgröße für den Text
         switch (orientation) {
             case TOP_LEFT -> {
@@ -247,10 +248,9 @@ public class IngameHUD {
         x += 4; // Padding für den Text
         y += 4; // Padding für den Text
 
-        // WIP
-        nvgFontSize(vg, fontSize);
-        nvgFillColor(vg, rgba(0xff, 0x30, 0x30, 200, colour));
-        nvgText(vg, x, y, "Work in Progress");
+        nvgFontSize(vg, fontSize*1.2f);
+        nvgFillColor(vg, rgba(0x30, 0x40, 0x50, 200, colour));
+        nvgText(vg, x, y, "Statistics");
 
         // Statistiken zeichnen
         int color = 0xff; // Textfarbe

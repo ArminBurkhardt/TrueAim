@@ -76,7 +76,6 @@ public class GameEngine {
             return; // Keine Änderung, wenn die Waffe bereits aktiv ist
         }
         // Callbacks entfernen, um Konflikte zu vermeiden
-        inputManager.clearLeftClickCallbacks();
         inputManager.clearRightClickCallbacks();
         inputManager.clearLeftReleaseCallbacks();
         inputManager.clearRightReleaseCallbacks();
