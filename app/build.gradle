@@ -8,9 +8,10 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
-def legui_version = '4.2.0'
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -44,6 +45,8 @@ dependencies {
     //implementation "org.lwjgl:lwjgl-glu:3.3.6"
 
     runtimeOnly "org.lwjgl:lwjgl:3.3.6:natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl-stb:3.3.6:natives-windows"
+    runtimeOnly "org.lwjgl:lwjgl-nanovg:3.3.6:natives-windows"
     runtimeOnly "org.lwjgl:lwjgl-glfw:3.3.6:natives-windows"
     runtimeOnly "org.lwjgl:lwjgl-opengl:3.3.6:natives-windows"
     runtimeOnly "org.lwjgl:lwjgl-openal:3.3.6:natives-windows"
@@ -67,7 +70,7 @@ java {
 
 application {
     // Define the main class for the application.
-    mainClass = 'org.trueaim.AimTrainer'
+    mainClass = 'org.trueaim.App'
 }
 
 tasks.named('test') {

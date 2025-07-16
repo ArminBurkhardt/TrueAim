@@ -1,4 +1,8 @@
 # TrueAim
+## Installation
+- Option 1: Lade die [`.jar` Datei](https://github.com/ArminBurkhardt/TrueAim/releases/tag/v0.0.1) herunter und führe sie aus.
+- Option 2: Clone das Repository und führe die `App.java` Datei aus.
+
 ## Player Onboarding
 ### Steuerung
 - W, A, S, D zum Bewegen
@@ -28,6 +32,8 @@
 *kurze Kommentare sind bei wichtigen Klassen oben*
 
 *die >5000 Zeilen Java Code bitte **nicht** durchlesen*
+
+(bitte kein Code Review)
 
 ☢️**Sehr wichtig**☢️: `IMPORTANT DO NOT DELETE` Ordner in den Ressourcen, nicht löschen, da alles sonst abstürzt.
 
